@@ -1,0 +1,10 @@
+{
+    "presets": [
+        "@babel/preset-env"
+    ],
+    /*
+    don't misplace "plugins" in webpack config the one with " is for babel
+    ref: https://stackoverflow.com/questions/52157572/webpack-4-babel-7-transform-runtime-invalid-configuration-object
+    */
+    "plugins": ["@babel/plugin-proposal-decorators"],
+}
