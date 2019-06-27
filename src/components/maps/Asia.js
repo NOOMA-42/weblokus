@@ -1,50 +1,49 @@
 import React from 'react';
-import classNames from 'classnames';
-import HTML5Backend from 'react-dnd-html5-backend';
-import {
-        DragSource,
-        DropTarget,
-        DragDropContext,
-        DragDropContextProvider
-} from 'react-dnd' ;
-import FlipMove from 'react-flip-move';
+import classNames from 'classnames' ;
 
-const BOARD_WIDTH   = 11;
-const BOARD_HEIGHT  = 7;
-const SQUARE_SIZE   = 56;
-const TILE_OFFSET   = 3;
-const NUM_SQUARES   = BOARD_WIDTH * BOARD_HEIGHT;
-
-
-@DragDropContext(HTML5Backend)
-class Asia extends React.Component { 
-        constructor(props) {
-                super(props);
-                this.state = {
-                        
-                }
+const BOARD_WIDTH = 14;
+const BOARD_HEIGHT = 14;
+const SQUARE_SIZE = 40;
+const SINGLEPIECE_OFFSET = 3;
+class BoardSquare extends React.Component {
+        renderSquare() {
+                const classes = classNames({
+                        'board-square': true,
+                });
+                return <div className={classes}></div>
         }
-
-        updateDroppedTilePosition() {
-                
+        render() {
+                return this.renderSquare() ;
         }
-
-        renderTiles() {
-                
-        }
-
+}
+class Asia extends React.Component {
         renderBoardSquares() {
-                
+                const range = n => Array.from(new Array(n), (x, i) => i);
+                const matrixProduct = (x, y) => {
+                        const rows = range(y);
+                        const columns = range(x);
+                        return rows.map((row, i) => columns.slice());
+                }
+                const matrix = matrixProduct(BOARD_WIDTH, BOARD_HEIGHT);
+
+                return matrix.map((row, rowIndex) => (
+                        row.map((index) => {
+                                return (
+                                        <BoardSquare
+                                                x={index}
+                                                y={rowIndex}
+                                                key={`${index}+${rowIndex}`}
+                                        />
+                                );
+                        })
+                ));
         }
 
         render() {
                 return (
-                        <div id="scrabble">
-                                <div className="board-border">
-                                        <div className="board">
-                                                <FlipMove duration={200} staggerDelayBy={150}>
-                                                        {this.renderTiles()}
-                                                </FlipMove>
+                        <div id="board">
+                                <div className='board-border'>
+                                        <div className='board'>
                                                 {this.renderBoardSquares()}
                                         </div>
                                 </div>
@@ -52,6 +51,5 @@ class Asia extends React.Component {
                 );
         }
 }
-
 
 export default Asia;

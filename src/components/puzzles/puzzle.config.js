@@ -244,6 +244,6 @@ const puzzlePositionConfig = [
         [3,7],
 ] ;
 
-export { puzzleSet, puzzlePositionConfig };
+export { pieceSet, puzzleSet, puzzlePositionConfig };
 
 

@@ -17,7 +17,7 @@ $mauve:     #8C658F;
 $yellow:      #FFD959;
 $fadedyellow: #BDA259;
 
-#scrabble {
+#board {
   .board-border {
     position: relative;
     background: $lightgray;
@@ -82,30 +82,6 @@ $fadedyellow: #BDA259;
       background: lighten($yellow, 15%);
     }
 
-    .tile-letter {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      font-size: $tile-size * 0.5;
-      line-height: $tile-size;
-      text-align: center;
-      font-weight: 700;
-      color: $darkgray;
-    }
-
-    .tile-points {
-      position: absolute;
-      top: 0;
-      right: -2px;
-      width: $tile-size * 0.4;
-      height: $tile-size * 0.4;
-      line-height: $tile-size * 0.4;
-      text-align: center;
-      font-size: $tile-size * 0.25;
-      color: $fadedyellow;
-    }
   }
 
   .controls {

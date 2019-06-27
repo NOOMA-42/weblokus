@@ -9,7 +9,6 @@ import {
 import FlipMove from 'react-flip-move';
 
 import tiles from '../../data/tiles';
-import testTiles from '../../data/tiles' ;
 
 const BOARD_WIDTH = 14;
 const BOARD_HEIGHT = 14;
@@ -19,12 +18,11 @@ const NUM_SQUARES = BOARD_WIDTH * BOARD_HEIGHT;
 
 
 @DragDropContext(HTML5Backend)
-class Board extends React.Component {
+class TestBoard extends React.Component {
         constructor(props) {
                 super(props);
                 this.state = {
-                        tiles,
-                        testTiles
+                        tiles
                 }
                 this.updateDroppedTilePosition = this.updateDroppedTilePosition.bind(this);
         }
@@ -38,6 +36,7 @@ class Board extends React.Component {
         }
 
         renderTiles() {
+                console.log('hi') ;
                 return this.state.tiles.map((tile, index) => {
                         return (
                                 <Tile
@@ -113,6 +112,7 @@ const tileTarget = {
 
 class Tile extends Component {
         render() {
+                console.log(this.props) ;
                 const {
                         connectDropTarget, connectDragSource, isDragging, letter, points, x, y
                 } = this.props;
@@ -160,4 +160,4 @@ class BoardSquare extends Component {
                 }
         }
 }
-export default Board;
+export default TestBoard ;

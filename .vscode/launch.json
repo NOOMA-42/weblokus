@@ -1,0 +1,14 @@
+{
+        "version": "0.2.0",
+        "configurations": [
+                {
+                        "type": "chrome",
+                        "request": "launch",
+                        "name": "client",
+                        "sourceMaps": true,
+                        "file": "${workspaceFolder}/build/index.html",
+                        "runtimeExecutable": "/Users/yeyandong/Desktop/chrome-mac/Chromium.app/Contents/MacOS/Chromium"
+                }
+                
+        ]
+}

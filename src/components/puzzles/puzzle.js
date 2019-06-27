@@ -44,8 +44,7 @@ class Puzzle extends React.Component {
                 const style = {
                         position: 'absolute',
                         top: this.state.top + 'px',
-                        left: this.state.left + 'px',
-                        className: 'puzzle'
+                        left: this.state.left + 'px'
                 }
                 let piece = this.state.puzzle.rotations[0] ;
                 let originalPieces = [] ;
@@ -69,7 +68,18 @@ class Puzzle extends React.Component {
                 }) ;
 
                 return(
-                        <div id={this.props.id} style={style}>{pieces}</div>
+                        <div 
+                        id={this.props.id}
+                        data-direction={0}
+                        style={style}
+                        className= 'puzzle'
+                        onMouseDown={this.props.onMouseDown}
+                        onWheel={this.props.onWheel}
+                        onClick = {this.props.onClick}
+                        onDoubleClick = {this.props.onDoubleClick}
+                        >
+                        {pieces}
+                        </div>
                 ) ;
         }
 }

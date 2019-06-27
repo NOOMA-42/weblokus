@@ -1,9 +1,8 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
 import { puzzleSet, puzzlePositionConfig } from '../puzzles/puzzle.config';
 import { Puzzle } from '../puzzles/puzzle' ;
 
 const UNITLENGTH = 100;
-const NUMOFPUZZLES = 21;
 
 class View extends Component {
         constructor(props) {
@@ -25,6 +24,10 @@ class View extends Component {
                                         y={puzzlePositionConfig[index][1]==1? puzzlePositionConfig[index][1]*60:puzzlePositionConfig[index][1] * UNITLENGTH} 
                                         puzzle={puzzle} 
                                         size={puzzle.size}
+                                        onMouseDown={this.props.onMouseDown}
+                                        onWheel={this.props.onWheel}
+                                        onClick = {this.props.onClick}
+                                        onDoubleClick = {this.props.onDoubleClick}
                                         />
                                 ) ;
                         })
