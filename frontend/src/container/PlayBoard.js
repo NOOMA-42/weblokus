@@ -3,7 +3,7 @@ import React from 'react';
 import { Container, Row, Col } from 'reactstrap';
 
 // Components
-import Asia from '../components/maps/Asia';
+import PlayingArea from '../components/maps/Asia';
 import View from '../components/view/RighSidePuzzleContainer';
 
 // Config
@@ -19,8 +19,14 @@ const SCALE = 30;
 
 function containerOffset(e) {
         let offsetParent = e.currentTarget.offsetParent;
-        let x = e.pageX - offsetParent.offsetLeft;
-        let y = e.pageY - offsetParent.offsetTop;
+        console.log(`offsetParent.offsetLeft : ${offsetParent.offsetLeft}
+        offsetParent.offsetTop : ${offsetParent.offsetTop}
+        e.currentTarget.offsetLeft: ${e.currentTarget.offsetLeft}
+        e.currentTarget.offsetTop: ${e.currentTarget.offsetTop}`) ;
+//        let x = e.pageX - offsetParent.offsetLeft;
+//        let y = e.pageY - offsetParent.offsetTop;
+        let x = e.currentTarget.offsetLeft ;
+        let y =  e.currentTarget.offsetTop ;
         return { x, y };
 }
 class WebLokus extends React.Component {
@@ -30,29 +36,19 @@ class WebLokus extends React.Component {
                 this.drag = this.drag.bind(this);
                 this.click = this.click.bind(this);
                 this.dblclick = this.dblclick.bind(this);
-                this.wheel = this.wheel.bind(this);
+                this.state = {
+                        playerId: 0
+                }
         }
         update() {
-                let boardElem = document.getElementsByClassName('board')[0];
                 for (let y = 0; y < 14; y++) {
                         for (let x = 0; x < 14; x++) {
                                 let col = this.board.colorAt(x, y); // 'violet' 'orange' 
                                 if (!col) continue;
                                 let id = 'board_' + x.toString(16) + y.toString(16);
                                 let cell = document.getElementById(id);
-                                console.log(`id: ${id}`);
-                                if (!cell) {
-                                        cell = document.createElement('div');
-                                        cell.id = id;
-                                        cell.setAttribute('style', 'position:absolute;' +
-                                            'left:' + x * 40 + 'px;' +
-                                            'top:' + y * 40 + 'px;' +
-                                            'width:' + 40 + 'px;' +
-                                            'height:' + 40 + 'px;');
-                                        boardElem.appendChild(cell);
-                                }
-                                
                                 let cls = col === 'violet' ? 'block0' : 'block1';
+                                console.log(`cls: ${cls}`) ;
                                 cell.classList.add(cls);
                         }
                 }
@@ -68,7 +64,7 @@ class WebLokus extends React.Component {
                         elem.classList.add(name);
                         setTimeout(() => elem.classList.remove(name), 16);
                 }
-                let direction = elem.getAttribute('data-direction');
+                let direction = parseInt(elem.getAttribute('data-direction'));
                 switch (dir) {
                         case 'left':
                                 dir = (direction + [6, 2][direction & 1]) & 7;
@@ -94,32 +90,31 @@ class WebLokus extends React.Component {
                                 break;
                 }
                 elem.setAttribute('data-direction', dir);
-                let elemId = parseInt(elem.id[1]);
+                let elemId = parseInt(elem.id.length == 3? elem.id[1]+elem.id[2]: elem.id[1]); // 變形ㄌ
                 let rot = puzzleSet[elemId].rotations[dir];
                 for (let i = 0; i < rot.size; i++) {
                         let child = elem.childNodes[i];
                         child.style.left = rot.coords[i].x * SCALE + 'px';
                         child.style.top = rot.coords[i].y * SCALE + 'px';
                 }
+                /*
                 if (x != undefined) {
                         console.log('hi');
                         elem.style.left = x + 'px';
                         elem.style.top = y + 'px';
                 }
+                */
         }
 
         toBoardPosition(x, y) {
-                
                 let boardStyle = window.getComputedStyle(document.getElementsByClassName('board-border')[0]);
                 let containerStyle = window.getComputedStyle(document.getElementsByClassName('container')[0]);
                 let colOneStyle = window.getComputedStyle(document.getElementsByClassName('col-2')[0]);
                 let colTwoStyle = window.getComputedStyle(document.getElementsByClassName('col-7')[0]);
-                x -= parseFloat(containerStyle.marginLeft) + parseFloat(containerStyle.padding) + parseFloat(colOneStyle.width) + 2*parseFloat(colOneStyle.padding) + parseFloat(boardStyle.marginLeft) + parseFloat(boardStyle.padding) + parseFloat(colTwoStyle.padding);
+                x -= parseFloat(containerStyle.marginLeft) + parseFloat(containerStyle.padding) + parseFloat(colOneStyle.width) + 2*parseFloat(colOneStyle.padding) + parseFloat(boardStyle.marginLeft) + parseFloat(boardStyle.padding) + parseFloat(colTwoStyle.padding) ;
                 y -= parseFloat(boardStyle.padding) + parseFloat(boardStyle.marginTop);
-                console.log(`x : ${x} y: ${y}`) ;
                 x = Math.floor(x / 40);
                 y = Math.floor(y / 40);
-                console.log(`Board Position x : ${x} y: ${y}`) ;
                 if (this.board.inBounds(x, y)) return { x, y };
                 else return null;
         }
@@ -130,7 +125,6 @@ class WebLokus extends React.Component {
                 let colOneStyle = window.getComputedStyle(document.getElementsByClassName('col-2')[0]);
                 let colTwoStyle = window.getComputedStyle(document.getElementsByClassName('col-7')[0]);
                 return {
-                        
                         x: pos.x * 40 + parseFloat(containerStyle.marginLeft) + parseFloat(colOneStyle.width) + 2*parseFloat(colOneStyle.padding) + parseFloat(boardStyle.marginLeft) + parseFloat(boardStyle.padding) + parseFloat(colTwoStyle.padding),
                         y: pos.y * 40 + parseFloat(boardStyle.padding) + parseFloat(boardStyle.marginTop)
                 };
@@ -140,8 +134,7 @@ class WebLokus extends React.Component {
 
         dragPuzzles(e, clientX, clientY) {
                 let elem = e.currentTarget;
-                let elemId = parseInt(elem.id[1]);
-                console.log(`elem.offsetLeft : ${elem.offsetLeft} elem.offsetTop: ${elem.offsetTop}`)
+                let elemId = parseInt(elem.id.length == 3? elem.id[1]+elem.id[2]: elem.id[1]);
                 let deltaX = clientX - elem.offsetLeft;
                 let deltaY = clientY - elem.offsetTop;
                 elem.classList.add('dragging');
@@ -149,11 +142,12 @@ class WebLokus extends React.Component {
                 e.preventDefault();
                 let moveHandler = (e, clientX, clientY) => {
                         e.stopPropagation();
-                        console.log(`clientX : ${clientX}`);
                         let x = clientX - deltaX; //elem.offsetLeft
                         let y = clientY - deltaY; //elem.offsetTop
                         let bpos = this.toBoardPosition(clientX, clientY);
+                        console.log(`elemId: ${elemId} direction:${elem.getAttribute('data-direction')}`) ;
                         let pieceId = elemId << 3 | elem.getAttribute('data-direction');
+                        console.log(`pieceId: ${pieceId}`) ;
                         if (bpos && this.board.isValidMove(new Move(bpos.x, bpos.y, pieceId))) {
                                 console.log('hello bpos and welcome epos');
                                 let epos = this.fromBoardPosition(bpos);
@@ -182,8 +176,8 @@ class WebLokus extends React.Component {
                                         this.onPlayerMove(move);
                                 }
                                 */
-                               elem.style.visibility = 'hidden';
-                               this.onPlayerMove(move);
+                                elem.style.visibility = 'hidden';
+                                this.onPlayerMove(move);
                         }
                 };
                 let mouseUp = (e) => {
@@ -195,27 +189,6 @@ class WebLokus extends React.Component {
 
         drag(e) {
                 this.dragPuzzles(e, e.clientX, e.clientY);
-        }
-
-        wheel(e) {
-                console.log('wheel');
-                e.stopPropagation();
-                e.preventDefault();
-                if (this.wheel_lock) return;
-                this.wheel_lock = true;
-                setTimeout(() => { this.wheel_lock = false; }, 50);
-                let raw = e.detail ? e.detail : -e.wheelDelta;
-                let { x, y } = containerOffset(e);
-                console.log(`x : ${x} y : ${y}`);
-                if (raw < 0) {
-                        console.log('left');
-                        this.rotate(e.currentTarget, 'left', x, y);
-                }
-                else {
-                        console.log('right');
-                        this.rotate(e.currentTarget, 'right', x, y);
-                }
-
         }
 
         click(e) {
@@ -238,10 +211,10 @@ class WebLokus extends React.Component {
                                 <Row>
                                         <Col xs="2"><img src={capoo} style={{ width: 150, margin: 40 }} /></Col>
                                         <Col xs="7">
-                                                <Asia />
+                                                <PlayingArea />
                                         </Col>
                                         <Col xs="3">
-                                                <View onMouseDown={this.drag} onWheel={this.wheel} onClick={this.click} onDoubleClick={this.dblclick} />
+                                                <View onMouseDown={this.drag}  onClick={this.click} onDoubleClick={this.dblclick} playerId={this.state.playerId}/>
                                         </Col>
                                 </Row>
                         </Container >

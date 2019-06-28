@@ -20,8 +20,7 @@ class SinglePiece extends React.Component {
                         top: this.state.top + 'px',
                         left: this.state.left + 'px',
                         width: this.state.width + 'px',
-                        height: this.state.height + 'px',
-                        color: this.props.color
+                        height: this.state.height + 'px'
                 }
                 return(
                         <div style={style} className={this.state.className}></div>
@@ -58,9 +57,8 @@ class Puzzle extends React.Component {
                 const pieces = originalPieces.map( (piece,index) => {
                         return(
                                 <SinglePiece 
-                                color='orange' 
                                 key={index} 
-                                id={0} 
+                                id={this.props.playerId} 
                                 x={piece.x * SCALE} 
                                 y ={piece.y * SCALE}
                                 />
@@ -74,7 +72,6 @@ class Puzzle extends React.Component {
                         style={style}
                         className= 'puzzle'
                         onMouseDown={this.props.onMouseDown}
-                        onWheel={this.props.onWheel}
                         onClick = {this.props.onClick}
                         onDoubleClick = {this.props.onDoubleClick}
                         >
