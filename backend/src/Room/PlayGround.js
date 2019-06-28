@@ -26,8 +26,12 @@ class playGround extends Room{
         console.log("JOINING ROOM");
         this.state.players[client.sessionId] = new Player();
         this.state.players[client.sessionId].connected = true;
-        console.log("test")
-        console.log(this.client);
+        console.log("join " + client.id);
+        
+        let gameCanStart = this.hasReachedMaxClients();
+        if(gameCanStart){
+            this.state.waitingForUser = false;
+        }
     }
 
     requestJoin (options, isNewRoom) {
@@ -61,14 +65,21 @@ class playGround extends Room{
             delete this.state.players[client.sessionId];
         }
 
-        console.log("ChatRoom:", client.sessionId, "left!");
+        console.log("ChatRoom: ", client.sessionId, "left!");
     }
-    async onDispose () {
-        await removeRoomFromDatabase();
+    
+    // useless function
+    onDispose () {
+        delete this.state.players;
+        console.log("Dispose: " + this.state)        
     }
     
 }
 
+/*
+warm reminder:
+    field not initialised in constructor is default undefined
+*/
 class Player extends Schema {
 }
 type("boolean")(Player.prototype, "connected");
@@ -77,6 +88,7 @@ class roomStatus extends Schema {
     constructor() {
         super();
         this.players = new MapSchema();
+        this.waitingForUser = true;
     }
 }
 type("boolean")(roomStatus.prototype, "waitingForUser");

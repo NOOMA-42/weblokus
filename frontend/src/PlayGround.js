@@ -1,6 +1,7 @@
 import React, { Component }from 'react'
 import { Client } from 'colyseus.js'
 import { Button, Form, FormGroup, Input } from 'reactstrap'
+import { DataChange } from '@colyseus/schema'
 
 class PlayGround extends Component{
   constructor() {
@@ -21,10 +22,64 @@ class PlayGround extends Component{
 
   create = () => {
     this.room = this.client.join('game_room_handler', { create: true });
+    
+    
+    /* to be used: same as state.onChange
     this.room.onStateChange.add((state) => {
       console.log("the room state has been updated:", state);
     });
+    */
+    
+    
+    
+    // notify this client whenever a new client join
+    this.room.onJoin.add(() => {
+      console.log(this.room.state)
 
+
+      // to be used
+      /*
+      this.room.state.onChange = (changes) => {
+        changes.forEach(change => {
+            console.log("state on change");
+            console.log(change);
+            
+          change packs only field value prevvalue
+          value prev: Map Schema
+          field: Player
+            
+            console.log("MMM"+change.field);
+            console.log("MMM"+change.value);
+            console.log("MMM"+change.previousValue);
+        });
+    };
+      
+      
+      this.room.state.players.onAdd = (player, key) => {
+        // player is schema object
+        console.log("onAdd: ");
+        console.log("key: "+key) // player session ID
+        console.log(player, "has been added at", key);
+    
+        // add your player entity to the game world!
+    
+        // If you want to track changes on a child object inside a map, this is a common pattern:
+        player.onChange = function(changes) {
+          console.log("onChange: ")
+            changes.forEach(change => {
+                console.log(change);// only include field value prevValue
+                console.log("onChange: "+change.field); // connected
+                console.log("onChange: "+change.value);// true
+                console.log("onChange: "+change.previousValue); // undefined
+            })
+        };
+    
+        // force "onChange" to be called immediatelly
+        player.triggerAll();
+    };
+    */
+    })
+    
     // change client's frontend status
     this.room.onJoin.addOnce(() => {
       console.log("creating " + this.room.id);
@@ -40,18 +95,13 @@ class PlayGround extends Component{
     event.preventDefault();
     this.room = this.client.join(this.state.submit);
 
-    // notify this client whenever a new client join
-    this.room.onJoin.add(() => {
-      console.log(this.room.id + ' joined');
-    })
-
     // change client's frontend status
     this.room.onJoin.addOnce(() => {
       console.log("creating " + this.room.id);
       // this state update is async, so it needs the state as arg.
       this.setState((state) => ({
         roomID: this.room.id,
-        createRoom: true
+        createRoom: true,
       }));
     })
   }
@@ -85,7 +135,7 @@ class PlayGround extends Component{
     this.client.onOpen.add(() => {
       console.log("onOpen")
     });
-
+    
     return(
       <>
         <h1>Play Ground</h1>
