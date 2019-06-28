@@ -33,25 +33,27 @@ class WebLokus extends React.Component {
                 this.wheel = this.wheel.bind(this);
         }
         update() {
-                let boardElem = document.getElementById('board');
+                let boardElem = document.getElementsByClassName('board')[0];
                 for (let y = 0; y < 14; y++) {
                         for (let x = 0; x < 14; x++) {
                                 let col = this.board.colorAt(x, y); // 'violet' 'orange' 
                                 if (!col) continue;
                                 let id = 'board_' + x.toString(16) + y.toString(16);
                                 let cell = document.getElementById(id);
+                                console.log(`id: ${id}`);
                                 if (!cell) {
                                         cell = document.createElement('div');
                                         cell.id = id;
                                         cell.setAttribute('style', 'position:absolute;' +
-                                                'left:' + x * 40 + 'px;' +
-                                                'top:' + y * 40 + 'px;' +
-                                                'width:' + 40 + 'px;' +
-                                                'height:' + 40 + 'px;');
+                                            'left:' + x * 40 + 'px;' +
+                                            'top:' + y * 40 + 'px;' +
+                                            'width:' + 40 + 'px;' +
+                                            'height:' + 40 + 'px;');
                                         boardElem.appendChild(cell);
                                 }
+                                
                                 let cls = col === 'violet' ? 'block0' : 'block1';
-                                cell.className = cls;
+                                cell.classList.add(cls);
                         }
                 }
 
@@ -107,31 +109,39 @@ class WebLokus extends React.Component {
         }
 
         toBoardPosition(x, y) {
-                let boardStyle = window.getComputedStyle(document.getElementsByClassName('board')[0]);
-                x -= parseInt(boardStyle.left) + parseInt(boardStyle.borderLeftWidth) ;
-                y -= parseInt(boardStyle.top) + parseInt(boardStyle.borderTopWidth)  ;
+                
+                let boardStyle = window.getComputedStyle(document.getElementsByClassName('board-border')[0]);
+                let containerStyle = window.getComputedStyle(document.getElementsByClassName('container')[0]);
+                let colOneStyle = window.getComputedStyle(document.getElementsByClassName('col-2')[0]);
+                let colTwoStyle = window.getComputedStyle(document.getElementsByClassName('col-7')[0]);
+                x -= parseFloat(containerStyle.marginLeft) + parseFloat(containerStyle.padding) + parseFloat(colOneStyle.width) + 2*parseFloat(colOneStyle.padding) + parseFloat(boardStyle.marginLeft) + parseFloat(boardStyle.padding) + parseFloat(colTwoStyle.padding);
+                y -= parseFloat(boardStyle.padding) + parseFloat(boardStyle.marginTop);
                 console.log(`x : ${x} y: ${y}`) ;
-                x = Math.round(x / SCALE);
-                y = Math.round(y / SCALE);
+                x = Math.floor(x / 40);
+                y = Math.floor(y / 40);
                 console.log(`Board Position x : ${x} y: ${y}`) ;
                 if (this.board.inBounds(x, y)) return { x, y };
                 else return null;
         }
 
         fromBoardPosition(pos) {
-                let boardStyle = window.getComputedStyle(document.getElementById('board'));
+                let boardStyle = window.getComputedStyle(document.getElementsByClassName('board-border')[0]);
+                let containerStyle = window.getComputedStyle(document.getElementsByClassName('container')[0]);
+                let colOneStyle = window.getComputedStyle(document.getElementsByClassName('col-2')[0]);
+                let colTwoStyle = window.getComputedStyle(document.getElementsByClassName('col-7')[0]);
                 return {
-                        x: pos.x * SCALE + parseInt(boardStyle.left) +
-                                parseInt(boardStyle.borderLeftWidth),
-                        y: pos.y * SCALE + parseInt(boardStyle.top) +
-                                parseInt(boardStyle.borderTopWidth)
+                        
+                        x: pos.x * 40 + parseFloat(containerStyle.marginLeft) + parseFloat(colOneStyle.width) + 2*parseFloat(colOneStyle.padding) + parseFloat(boardStyle.marginLeft) + parseFloat(boardStyle.padding) + parseFloat(colTwoStyle.padding),
+                        y: pos.y * 40 + parseFloat(boardStyle.padding) + parseFloat(boardStyle.marginTop)
                 };
+
         }
 
 
         dragPuzzles(e, clientX, clientY) {
                 let elem = e.currentTarget;
                 let elemId = parseInt(elem.id[1]);
+                console.log(`elem.offsetLeft : ${elem.offsetLeft} elem.offsetTop: ${elem.offsetTop}`)
                 let deltaX = clientX - elem.offsetLeft;
                 let deltaY = clientY - elem.offsetTop;
                 elem.classList.add('dragging');
@@ -139,11 +149,13 @@ class WebLokus extends React.Component {
                 e.preventDefault();
                 let moveHandler = (e, clientX, clientY) => {
                         e.stopPropagation();
-                        let x = clientX - deltaX;
-                        let y = clientY - deltaY;
-                        let bpos = this.toBoardPosition(x, y);
+                        console.log(`clientX : ${clientX}`);
+                        let x = clientX - deltaX; //elem.offsetLeft
+                        let y = clientY - deltaY; //elem.offsetTop
+                        let bpos = this.toBoardPosition(clientX, clientY);
                         let pieceId = elemId << 3 | elem.getAttribute('data-direction');
                         if (bpos && this.board.isValidMove(new Move(bpos.x, bpos.y, pieceId))) {
+                                console.log('hello bpos and welcome epos');
                                 let epos = this.fromBoardPosition(bpos);
                                 elem.style.left = epos.x + 'px';
                                 elem.style.top = epos.y + 'px';
@@ -160,13 +172,18 @@ class WebLokus extends React.Component {
                         document.removeEventListener('mouseup', mouseUp, true);
                         document.removeEventListener('mousemove', mouseMove, true);
                         e.stopPropagation();
-                        let bpos = this.toBoardPosition(clientX - deltaX, clientY - deltaY);
+//                        let bpos = this.toBoardPosition(clientX - deltaX, clientY - deltaY);
+                        let bpos = this.toBoardPosition(clientX, clientY);    
                         if (bpos) {
                                 let move = new Move(bpos.x, bpos.y, elemId << 3 | elem.getAttribute('data-direction'));
+                                /*
                                 if (this.board.isValidMove(move)) {
                                         elem.style.visibility = 'hidden';
                                         this.onPlayerMove(move);
                                 }
+                                */
+                               elem.style.visibility = 'hidden';
+                               this.onPlayerMove(move);
                         }
                 };
                 let mouseUp = (e) => {
@@ -217,7 +234,7 @@ class WebLokus extends React.Component {
 
         render() {
                 return (
-                        < Container >
+                        <Container>
                                 <Row>
                                         <Col xs="2"><img src={capoo} style={{ width: 150, margin: 40 }} /></Col>
                                         <Col xs="7">

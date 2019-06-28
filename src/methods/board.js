@@ -66,6 +66,7 @@ export class Board {
                         return;
                 }
                 let coords = move.coords();
+                console.log(coords);
                 let block = [VIOLET_BLOCK, ORANGE_BLOCK][this.player()];
                 let side_bit = [VIOLET_SIDE, ORANGE_SIDE][this.player()];
                 let edge_bit = [VIOLET_EDGE, ORANGE_EDGE][this.player()];

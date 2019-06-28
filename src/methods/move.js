@@ -35,6 +35,7 @@ export class Move {
         coords() {
                 if (this.isPass())
                         return [];
+                console.log(`blockId: ${this.blockId()}`);
                 let rot = puzzleSet[this.blockId()].rotations[this.direction()];
                 let coords = [];
                 for (let i = 0; i < rot.size; i++)

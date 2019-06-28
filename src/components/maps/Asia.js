@@ -10,7 +10,7 @@ class BoardSquare extends React.Component {
                 const classes = classNames({
                         'board-square': true,
                 });
-                return <div className={classes}></div>
+                return <div className={classes} id={this.props.id}></div>
         }
         render() {
                 return this.renderSquare() ;
@@ -32,6 +32,7 @@ class Asia extends React.Component {
                                         <BoardSquare
                                                 x={index}
                                                 y={rowIndex}
+                                                id={`board_${index.toString(16)}${rowIndex.toString(16)}`}
                                                 key={`${index}+${rowIndex}`}
                                         />
                                 );
