@@ -2,6 +2,7 @@ import React, { Component }from 'react'
 import { Client } from 'colyseus.js'
 import { Button, Form, FormGroup, Input } from 'reactstrap'
 import { DataChange } from '@colyseus/schema'
+import PlayBoard from './PlayBoard';
 
 class PlayGround extends Component{
   constructor() {
