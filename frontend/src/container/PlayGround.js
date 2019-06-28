@@ -4,6 +4,8 @@ import { Button, Form, FormGroup, Input } from 'reactstrap'
 import { DataChange } from '@colyseus/schema'
 import PlayBoard from './PlayBoard';
 
+var roomToSendMsg;
+
 class PlayGround extends Component{
   constructor() {
     super();
@@ -21,10 +23,13 @@ class PlayGround extends Component{
     }
   }
 
+  /*
+  The player will either gain the room object from creating the room or joining the room.
+  Thus some of the function appear twice.
+  */
   // Those who join game by creating room will go through this
   create = () => {
     this.room = this.client.join('game_room_handler', { create: true });
-    
     
     /* to be used: same as state.onChange
     this.room.onStateChange.add((state) => {
@@ -95,6 +100,9 @@ class PlayGround extends Component{
         }));
       }
     });
+
+    // for playboard to access
+    roomToSendMsg = this.room;
   }
 
   // Those who join game by searching ID will go through this
@@ -119,6 +127,8 @@ class PlayGround extends Component{
         }));
       }
     });
+
+    roomToSendMsg = this.room;
   }
 
   
@@ -201,3 +211,18 @@ class PlayGround extends Component{
 }
 
 export default PlayGround;
+
+
+// for board to send message
+export var roomToSendMsg = roomToSendMsg;
+
+export function sendMessageToServer(room, boardInfo) {
+  room.send(boardInfo);
+}
+
+export function listenMessageFromServer(room, boardObjectToSetState) {
+  //*** */
+  room.onMessage.add((newBoardInfo) => {
+    boardObjectToSetState.setState((state) => { boardInfo: newBoardInfo });
+  });
+}

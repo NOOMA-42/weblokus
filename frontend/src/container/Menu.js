@@ -5,7 +5,6 @@ function Menu (){
         <>
             <Link to="playground">Play or Return </Link>
             <Link to="ranking">ranking</Link>
-            <Link to="test">test</Link>
         </>  
     );
 }

@@ -1,9 +1,9 @@
 //Library
 import React from 'react';
-import { Container, Row, Col } from 'reactstrap';
+import { Container, Row, Col, Button } from 'reactstrap';
 
 // Components
-import PlayingArea from '../components/maps/Asia';
+import PlayingArea from '../components/maps/PlayingArea';
 import View from '../components/view/RighSidePuzzleContainer';
 
 // Config
@@ -17,6 +17,27 @@ import { Move } from '../methods/move';
 import capoo from '../assets/image/hi.jpeg';
 const SCALE = 30;
 
+/*
+20190628
+this line of code below is to share room object to you,
+you have put it the data and room, you'll send the board data
+to backend. We have to use require to access this variable, since
+require is dynamic and we have to wait for room being created.
+
+here'll be another onMessage function which is asynchronous in 
+order to receive message.
+*/
+
+
+/* 
+sendMessage & receiveMessage interface
+usage: 
+        function sendMessageToServer(room, boardInfo)
+        function listenMessageFromServer(room, boardObjectToSetState) ***not done yet
+*/
+import { sendMessageToServer, listenMessageFromServer } from './PlayGround';
+var haventSetListener = true;
+
 function containerOffset(e) {
         let offsetParent = e.currentTarget.offsetParent;
         console.log(`offsetParent.offsetLeft : ${offsetParent.offsetLeft}
@@ -29,6 +50,7 @@ function containerOffset(e) {
         let y =  e.currentTarget.offsetTop ;
         return { x, y };
 }
+
 class WebLokus extends React.Component {
         constructor(props) {
                 super(props);
@@ -37,7 +59,8 @@ class WebLokus extends React.Component {
                 this.click = this.click.bind(this);
                 this.dblclick = this.dblclick.bind(this);
                 this.state = {
-                        playerId: 0
+                    playerId: 0,
+                    boardInfo: undefined
                 }
         }
         update() {
@@ -195,7 +218,7 @@ class WebLokus extends React.Component {
                 if (!e.shiftKey)
                         return;
                 let { x, y } = containerOffset(e);
-                this.rotate(e.currentTarget, 'right', x, y);
+                this.rotate(e.currentTarget,  'right', x, y);
         }
 
         dblclick(e) {
@@ -205,7 +228,41 @@ class WebLokus extends React.Component {
                 this.rotate(e.currentTarget, 'flip', x, y);
         }
 
+        
+    //**** it's for testing    it's up to you to delete it or not */
+        test = () => {
+            this.setState({
+                boardInfo: "Miao"
+            })
+        }
+
         render() {
+                /* 
+                require moment:
+                1. first time rendering
+                2. right after player update local state: boardInfo
+                drawback: the room will be required everytime.
+                */
+                var { roomToSendMsg } = require('./PlayGround');
+
+                //only set listener once 
+                if (haventSetListener) {
+                    haventSetListener = false;
+                    listenMessageFromServer(roomToSendMsg, this);
+                    console.log("client listen to message from server!")
+                }
+                if (this.state.boardInfo !== undefined) {
+                    sendMessageToServer(roomToSendMsg, this.state.boardInfo);
+            }
+            
+            /** 
+             *
+             if you wanna send more data you should pack it in a bigger object then parse it yourself,
+             you send what object to server you'll get the same one (by listenMessageFromServer setState)
+             *
+            */
+
+            /// second row is for testing, if you dont wanna test  delete it 
                 return (
                         <Container>
                                 <Row>
@@ -217,9 +274,14 @@ class WebLokus extends React.Component {
                                                 <View onMouseDown={this.drag}  onClick={this.click} onDoubleClick={this.dblclick} playerId={this.state.playerId}/>
                                         </Col>
                                 </Row>
+                     
+                                <Row>
+                                    <Button onClick={this.test}>test: Click it set new state of boardInfo </Button>
+                                </Row>
                         </Container >
                 );
         }
 }
 
 export default WebLokus;
+
