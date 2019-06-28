@@ -16,7 +16,7 @@ class BoardSquare extends React.Component {
                 return this.renderSquare() ;
         }
 }
-class Asia extends React.Component {
+class PlayingArea extends React.Component {
         renderBoardSquares() {
                 const range = n => Array.from(new Array(n), (x, i) => i);
                 const matrixProduct = (x, y) => {
@@ -53,4 +53,4 @@ class Asia extends React.Component {
         }
 }
 
-export default Asia;
+export default PlayingArea;
