@@ -21,6 +21,7 @@ class PlayGround extends Component{
     }
   }
 
+  // Those who join game by creating room will go through this
   create = () => {
     this.room = this.client.join('game_room_handler', { create: true });
     
@@ -29,15 +30,11 @@ class PlayGround extends Component{
     this.room.onStateChange.add((state) => {
       console.log("the room state has been updated:", state);
     });
-    */
-    
-    
-    
+    */  
     // notify this client whenever a new client join
     this.room.onJoin.add(() => {
-      console.log(this.room.state)
-
-
+      // detect change on backend state and update frontend state
+      
       // to be used
       /*
       this.room.state.onChange = (changes) => {
@@ -90,8 +87,17 @@ class PlayGround extends Component{
         createRoom: true
       }));
     })
+
+    this.room.onMessage.add((message) => {
+      if (message === "gameCanStart") {
+        this.setState((state) => ({
+          waitingForUser: false,
+        }));
+      }
+    });
   }
 
+  // Those who join game by searching ID will go through this
   submitHandler = (event) => {
     event.preventDefault();
     this.room = this.client.join(this.state.submit);
@@ -105,7 +111,17 @@ class PlayGround extends Component{
         createRoom: true,
       }));
     })
+
+    this.room.onMessage.add((message) => {
+      if (message === "gameCanStart") {
+        this.setState((state) => ({
+          waitingForUser: false,
+        }));
+      }
+    });
   }
+
+  
 
   // *testing functionalities
   // join 1st room
@@ -131,6 +147,43 @@ class PlayGround extends Component{
     });
   }
 
+  renderPlayGround() {
+    //create new game or join by id or return if in game
+    return (
+      <>
+        <h1>Play Ground</h1>
+        {    
+          this.state.createRoom ? (
+          <>
+          <h2>your room ID:{this.state.roomID} send it to your friends, if you have</h2>
+          <Button>Return Back Game</Button>
+          </>
+          ):(<>
+          <h2>2 entries into game</h2>
+          <Button onClick={this.create}>New Room</Button>
+          <Form onSubmit={this.submitHandler}>
+            <FormGroup row>
+              <Input
+                type="text"
+                name="roomID"
+                id="roomID"
+                value={this.state.submit}
+                placeholder="enter room ID"
+                onChange={e => this.setState({ submit: e.target.value })}
+              />
+              <Button type="submit" color="primary">
+                Let's go!
+            </Button>
+            </FormGroup>
+          </Form>
+          </>)
+        }
+        <h1>testing functions below</h1>
+        <Button onClick={this.available}>available</Button>
+        <Button onClick={this.join} >join</Button>
+      </>
+    );
+  }
 
   render() {
     this.client.onOpen.add(() => {
@@ -139,43 +192,9 @@ class PlayGround extends Component{
     
     return(
       <>
-        <h1>Play Ground</h1>
         {
-            /*
-            create new game or join by id or return if in game
-            */
-          this.state.createRoom ?
-            (<>
-              <h2>your room ID:{this.state.roomID} send it to your friends, if you have</h2>
-              <Button>Return Back Game</Button>
-            </>)
-              :
-            (<>
-              <h2>2 entries into game</h2>
-              <Button onClick={this.create}>New Room</Button>
-              <Form onSubmit={this.submitHandler}>
-                <FormGroup row>
-                <Input
-                  type="text"
-                  name="roomID"
-                  id="roomID"
-                  value={this.state.submit}
-                  placeholder="enter room ID"
-                  onChange={e => this.setState({ submit: e.target.value })}
-                />
-                <Button type="submit" color="primary">
-                  Let's go!
-                </Button>
-                </FormGroup>
-              </Form>
-            </>)
-        }
-          
-        
-        
-        <h1>testing functions below</h1>
-        <Button onClick={this.available}>available</Button>
-        <Button onClick={this.join} >join</Button>
+          this.state.waitingForUser ? this.renderPlayGround() : (<PlayBoard />)
+        } 
       </>
     )
   }

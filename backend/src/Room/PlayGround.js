@@ -31,6 +31,8 @@ class playGround extends Room{
         let gameCanStart = this.hasReachedMaxClients();
         if(gameCanStart){
             this.state.waitingForUser = false;
+            // broadcast a message to all clients
+            this.broadcast("gameCanStart");
         }
     }
 
