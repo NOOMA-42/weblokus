@@ -3,7 +3,7 @@ import React from 'react';
 import { Container, Row, Col } from 'reactstrap';
 
 // Components
-import PlayingArea from '../components/maps/Asia';
+import PlayingArea from '../components/maps/PlayingArea';
 import View from '../components/view/RighSidePuzzleContainer';
 
 // Config
