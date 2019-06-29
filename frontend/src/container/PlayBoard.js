@@ -3,7 +3,7 @@ import React from 'react';
 import { Container, Row, Col } from 'reactstrap';
 
 // Components
-import PlayingArea from '../components/maps/Asia';
+import PlayingArea from '../components/maps/PlayingArea';
 import View from '../components/view/RighSidePuzzleContainer';
 
 // Config
@@ -18,15 +18,8 @@ import capoo from '../assets/image/hi.jpeg';
 const SCALE = 30;
 
 function containerOffset(e) {
-        let offsetParent = e.currentTarget.offsetParent;
-        console.log(`offsetParent.offsetLeft : ${offsetParent.offsetLeft}
-        offsetParent.offsetTop : ${offsetParent.offsetTop}
-        e.currentTarget.offsetLeft: ${e.currentTarget.offsetLeft}
-        e.currentTarget.offsetTop: ${e.currentTarget.offsetTop}`) ;
-//        let x = e.pageX - offsetParent.offsetLeft;
-//        let y = e.pageY - offsetParent.offsetTop;
-        let x = e.currentTarget.offsetLeft ;
-        let y =  e.currentTarget.offsetTop ;
+        let x = e.currentTarget.offsetLeft;
+        let y = e.currentTarget.offsetTop;
         return { x, y };
 }
 class WebLokus extends React.Component {
@@ -37,10 +30,13 @@ class WebLokus extends React.Component {
                 this.click = this.click.bind(this);
                 this.dblclick = this.dblclick.bind(this);
                 this.state = {
-                        playerId: 0
+                        playerId: 0, // 0,1
+                        score: undefined,
+                        boardInformation: undefined
                 }
         }
         update() {
+                let boardInfo = [];
                 for (let y = 0; y < 14; y++) {
                         for (let x = 0; x < 14; x++) {
                                 let col = this.board.colorAt(x, y); // 'violet' 'orange' 
@@ -48,12 +44,18 @@ class WebLokus extends React.Component {
                                 let id = 'board_' + x.toString(16) + y.toString(16);
                                 let cell = document.getElementById(id);
                                 let cls = col === 'violet' ? 'block0' : 'block1';
-                                console.log(`cls: ${cls}`) ;
                                 cell.classList.add(cls);
                         }
                 }
-
+                this.updateScore() ;
+//                this.setState({ boardInformation: boardInfo });
         }
+
+        updateScore() {
+                let currentScore = this.board.score(0);
+                this.setState({score: currentScore}) ;
+        }
+
         onPlayerMove(move) {
                 this.board.doMove(move);
                 this.update();
@@ -90,7 +92,7 @@ class WebLokus extends React.Component {
                                 break;
                 }
                 elem.setAttribute('data-direction', dir);
-                let elemId = parseInt(elem.id.length == 3? elem.id[1]+elem.id[2]: elem.id[1]); // 變形ㄌ
+                let elemId = parseInt(elem.id.length == 3 ? elem.id[1] + elem.id[2] : elem.id[1]); // 變形ㄌ
                 let rot = puzzleSet[elemId].rotations[dir];
                 for (let i = 0; i < rot.size; i++) {
                         let child = elem.childNodes[i];
@@ -111,7 +113,7 @@ class WebLokus extends React.Component {
                 let containerStyle = window.getComputedStyle(document.getElementsByClassName('container')[0]);
                 let colOneStyle = window.getComputedStyle(document.getElementsByClassName('col-2')[0]);
                 let colTwoStyle = window.getComputedStyle(document.getElementsByClassName('col-7')[0]);
-                x -= parseFloat(containerStyle.marginLeft) + parseFloat(containerStyle.padding) + parseFloat(colOneStyle.width) + 2*parseFloat(colOneStyle.padding) + parseFloat(boardStyle.marginLeft) + parseFloat(boardStyle.padding) + parseFloat(colTwoStyle.padding) ;
+                x -= parseFloat(containerStyle.marginLeft) + parseFloat(containerStyle.padding) + parseFloat(colOneStyle.width) + 2 * parseFloat(colOneStyle.padding) + parseFloat(boardStyle.marginLeft) + parseFloat(boardStyle.padding) + parseFloat(colTwoStyle.padding);
                 y -= parseFloat(boardStyle.padding) + parseFloat(boardStyle.marginTop);
                 x = Math.floor(x / 40);
                 y = Math.floor(y / 40);
@@ -125,7 +127,7 @@ class WebLokus extends React.Component {
                 let colOneStyle = window.getComputedStyle(document.getElementsByClassName('col-2')[0]);
                 let colTwoStyle = window.getComputedStyle(document.getElementsByClassName('col-7')[0]);
                 return {
-                        x: pos.x * 40 + parseFloat(containerStyle.marginLeft) + parseFloat(colOneStyle.width) + 2*parseFloat(colOneStyle.padding) + parseFloat(boardStyle.marginLeft) + parseFloat(boardStyle.padding) + parseFloat(colTwoStyle.padding),
+                        x: pos.x * 40 + parseFloat(containerStyle.marginLeft) + parseFloat(containerStyle.padding) + parseFloat(colOneStyle.width) + 2 * parseFloat(colOneStyle.padding) + parseFloat(boardStyle.marginLeft) + parseFloat(boardStyle.padding) + parseFloat(colTwoStyle.padding),
                         y: pos.y * 40 + parseFloat(boardStyle.padding) + parseFloat(boardStyle.marginTop)
                 };
 
@@ -134,7 +136,7 @@ class WebLokus extends React.Component {
 
         dragPuzzles(e, clientX, clientY) {
                 let elem = e.currentTarget;
-                let elemId = parseInt(elem.id.length == 3? elem.id[1]+elem.id[2]: elem.id[1]);
+                let elemId = parseInt(elem.id.length == 3 ? elem.id[1] + elem.id[2] : elem.id[1]);
                 let deltaX = clientX - elem.offsetLeft;
                 let deltaY = clientY - elem.offsetTop;
                 elem.classList.add('dragging');
@@ -145,14 +147,17 @@ class WebLokus extends React.Component {
                         let x = clientX - deltaX; //elem.offsetLeft
                         let y = clientY - deltaY; //elem.offsetTop
                         let bpos = this.toBoardPosition(clientX, clientY);
-                        console.log(`elemId: ${elemId} direction:${elem.getAttribute('data-direction')}`) ;
+                        console.log(`moveHandler: elemId: ${elemId} direction:${elem.getAttribute('data-direction')}`);
+                        console.log(`moveHandler: elemId << 3 | elem.getAttribute('data-direction') = ${elemId << 3 | elem.getAttribute('data-direction')}`) ;
                         let pieceId = elemId << 3 | elem.getAttribute('data-direction');
-                        console.log(`pieceId: ${pieceId}`) ;
+                        console.log(`moveHandler: pieceId: ${pieceId}`);
+                        
                         if (bpos && this.board.isValidMove(new Move(bpos.x, bpos.y, pieceId))) {
                                 console.log('hello bpos and welcome epos');
                                 let epos = this.fromBoardPosition(bpos);
-                                elem.style.left = epos.x + 'px';
-                                elem.style.top = epos.y + 'px';
+                                console.log(`epos: ${epos.x}  ${epos.y}`) ;
+                                elem.style.left = x + 'px';
+                                elem.style.top = y + 'px';
                         }
                         else {
                                 elem.style.left = x + 'px';
@@ -166,18 +171,26 @@ class WebLokus extends React.Component {
                         document.removeEventListener('mouseup', mouseUp, true);
                         document.removeEventListener('mousemove', mouseMove, true);
                         e.stopPropagation();
-//                        let bpos = this.toBoardPosition(clientX - deltaX, clientY - deltaY);
-                        let bpos = this.toBoardPosition(clientX, clientY);    
+                        let bpos = this.toBoardPosition(clientX, clientY);
                         if (bpos) {
+                                console.log(`upHandler: clientX:${clientX} clientY:${clientY}`) ;
+                                console.log(`upHandler: bpos.x:${bpos.x} bpos.y:${bpos.y}`) ;
+                                console.log(`upHandler: elemId << 3 | elem.getAttribute('data-direction') : ${elemId << 3 | elem.getAttribute('data-direction')} `);
                                 let move = new Move(bpos.x, bpos.y, elemId << 3 | elem.getAttribute('data-direction'));
-                                /*
+                                console.log(`this.board.isValidMove(move): ${this.board.isValidMove(move)}`) ;
                                 if (this.board.isValidMove(move)) {
+                                        console.log('put on') ;
                                         elem.style.visibility = 'hidden';
                                         this.onPlayerMove(move);
                                 }
-                                */
+                                /*
+                                console.log(`this.board.isValidMove(move): ${this.board.isValidMove(move)}`) ;
                                 elem.style.visibility = 'hidden';
                                 this.onPlayerMove(move);
+                                */
+
+                                // 拼圖推最旁邊 顯示在最旁邊
+                                // 拼圖放在合法地方消失
                         }
                 };
                 let mouseUp = (e) => {
@@ -214,7 +227,7 @@ class WebLokus extends React.Component {
                                                 <PlayingArea />
                                         </Col>
                                         <Col xs="3">
-                                                <View onMouseDown={this.drag}  onClick={this.click} onDoubleClick={this.dblclick} playerId={this.state.playerId}/>
+                                                <View onMouseDown={this.drag} onClick={this.click} onDoubleClick={this.dblclick} playerId={this.state.playerId} />
                                         </Col>
                                 </Row>
                         </Container >
@@ -223,3 +236,16 @@ class WebLokus extends React.Component {
 }
 
 export default WebLokus;
+
+// 收到盤面資訊 reRender的function
+// playerId 顏色問題
+// 算分數 function 
+
+/*
+{
+        board_00: {
+                isOccupied : 0 or 1,
+                className:  !className
+        },
+}
+*/
