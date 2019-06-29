@@ -8,7 +8,7 @@ const SINGLEPIECE_OFFSET = 3;
 class BoardSquare extends React.Component {
         renderSquare() {
                 const classes = classNames({
-                        'board-square': true,
+                        'board-square': true
                 });
                 return <div className={classes} id={this.props.id}></div>
         }

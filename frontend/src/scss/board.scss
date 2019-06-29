@@ -12,7 +12,8 @@ $darkgray:  #333636;
 $aqua:      #1B90A1;
 $fuscia:    #F34D93;
 $mauve:     #8C658F;
-
+$violet: #63d;
+$orange: #f72;
 // Used in Scrabble demo
 $yellow:      #FFD959;
 $fadedyellow: #BDA259;
@@ -26,6 +27,7 @@ $fadedyellow: #BDA259;
     height: $board-height + ($gutter-width * 2);
     padding: $gutter-width;
   }
+  
 
   .board {
     position: relative;
@@ -59,39 +61,14 @@ $fadedyellow: #BDA259;
   }
 
   .block0 {
-    background-color: orange;
+    background-color: purple ;
     opacity: 0.8 ;
 }
 
 .block1 {
-    background-color: purple;
+    background-color: orange ;
     opacity: 0.8 ;
 }
-  .tile {
-    position: absolute;
-    z-index: 2;
-    width: $tile-size;
-    height: $tile-size;
-    background: $yellow;
-    cursor: move;
-    -webkit-box-shadow: 0.5px 0.5px 0px $fadedyellow, 1px 1px 0px $fadedyellow, 1.5px 1.5px 0px $fadedyellow,
-      2px 2px 0px $fadedyellow, 2.5px 2.5px 0px $fadedyellow, 3px 3px 0px $fadedyellow;
-    box-shadow: 0.5px 0.5px 0px $fadedyellow, 1px 1px 0px $fadedyellow, 1.5px 1.5px 0px $fadedyellow,
-      2px 2px 0px $fadedyellow, 2.5px 2.5px 0px $fadedyellow, 3px 3px 0px $fadedyellow;
-
-    &.draggable {
-      cursor: move;
-    }
-
-    &.is-dragging {
-      opacity: 0.7;
-    }
-
-    &.is-established {
-      background: lighten($yellow, 15%);
-    }
-
-  }
 
   .controls {
     position: relative;
