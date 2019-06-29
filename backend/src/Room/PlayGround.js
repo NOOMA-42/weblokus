@@ -46,7 +46,8 @@ class playGround extends Room{
         // broadcast a message to all clients
         console.log("broadcast to all the clients")
         console.log(message);
-        this.broadcast(message, { except: client });
+        this.broadcast(message);
+        //{ except: client }
     }
 
     async onLeave(client, consented) {

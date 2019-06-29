@@ -221,8 +221,10 @@ export function sendMessageToServer(room, boardInfo) {
 }
 
 export function listenMessageFromServer(room, boardObjectToSetState) {
-  //*** */
-  room.onMessage.add((newBoardInfo) => {
-    boardObjectToSetState.setState((state) => { boardInfo: newBoardInfo });
-  });
+  room.onMessage.add ( (newBoardInfo) => {
+    console.log(`newBoardInfo: ${newBoardInfo.square}`) ;
+    boardObjectToSetState.setState((state) => { boardInfo: newBoardInfo}, ()=>{
+      console.log(boardObjectToSetState.state.boardInfo.square) ;
+    }) ;
+    });
 }

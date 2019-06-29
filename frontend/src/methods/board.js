@@ -49,26 +49,26 @@ export class Board {
         }
         isValidMove(move) {
                 if (move.isPass()){
-                        console.log('isValidMove 1') ;
+//                        console.log('isValidMove 1') ;
                         return true;
                 }
                 if (this.used[move.blockId() + this.player() * 21]){
-                        console.log('isValidMove 2') ;
+//                        console.log('isValidMove 2') ;
                         return false;
                 }
                 let coords = move.coords();
                 if (!this._isMovable(coords)){
-                        console.log('isValidMove 3') ;
+//                        console.log('isValidMove 3') ;
                         return false;
                 }
                 for (let i = 0; i < coords.length; i++) {
                         if (this.square[coords[i].y][coords[i].x] &
                                 [VIOLET_EDGE, ORANGE_EDGE][this.player()]){
-                                console.log('isValidMove 4') ;
+//                                console.log('isValidMove 4') ;
                                 return true;
                         }
                 }
-                console.log('isValidMove 4') ;
+//                console.log('isValidMove 4') ;
                 return false;
         }
         doMove(move) {
@@ -118,7 +118,7 @@ export class Board {
                         [VIOLET_SIDE, ORANGE_SIDE][this.player()];
                 for (let i = 0; i < coords.length; i++) {
                         let { x, y } = coords[i];
-                        console.log(`this.square[y][x] & mask : ${ this.square[y][x] & mask}`) ;
+//                        console.log(`this.square[y][x] & mask : ${ this.square[y][x] & mask}`) ;
                         if (x < 0 || x >= 14 || y < 0 || y >= 14 || this.square[y][x] & mask)
                                 return false;
                 }

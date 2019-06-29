@@ -17,7 +17,7 @@ export class Move {
                         let dir = parseInt(x.substring(3));
                         this.m = xy - 0x11 | blk << 11 | dir << 8;
                 }
-                console.log(`Move: this.m=${this.m}`) ;
+//                console.log(`Move: this.m=${this.m}`) ;
         }
         x() { return this.m >> 4 & 0xf; }
         y() { return this.m & 0xf; } 
@@ -36,10 +36,10 @@ export class Move {
         coords() {
                 if (this.isPass())
                         return [];
-                console.log(`Move: blockId: ${this.blockId()}`);
-                console.log(`Move: direction: ${this.direction()}`);
-                console.log(`Move: x: ${this.x()}`);
-                console.log(`Move: y: ${this.y()}`);
+//                console.log(`Move: blockId: ${this.blockId()}`);
+//                console.log(`Move: direction: ${this.direction()}`);
+//                console.log(`Move: x: ${this.x()}`);
+//                console.log(`Move: y: ${this.y()}`);
                 let rot = puzzleSet[this.blockId()].rotations[this.direction()];
                 let coords = [];
                 for (let i = 0; i < rot.size; i++)

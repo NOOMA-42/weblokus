@@ -4,7 +4,7 @@ import { Container, Row, Col, Button } from 'reactstrap';
 
 // Components
 import PlayingArea from '../components/maps/PlayingArea';
-import View from '../components/view/RighSidePuzzleContainer';
+import RighSidePuzzleContainer from '../components/view/RighSidePuzzleContainer';
 
 // Config
 import { puzzleSet } from '../components/puzzles/puzzle.config';
@@ -43,7 +43,7 @@ function containerOffset(e) {
         let y = e.currentTarget.offsetTop;
         return { x, y };
 }
-
+// player   0:自己  1:對方
 class WebLokus extends React.Component {
         constructor(props) {
                 super(props);
@@ -53,34 +53,79 @@ class WebLokus extends React.Component {
                 this.dblclick = this.dblclick.bind(this);
                 this.state = {
                         playerId: 0, // 0,1
-                        score: undefined,
-                        boardInfo: undefined
+                        ownScore: undefined,
+                        opponentScore: undefined,
+                        boardInfo: this.board,
+                        
+//                        currentBoard: this.board
                 }
         }
+        
         update() {
-                let boardInformation = [];
                 for (let y = 0; y < 14; y++) {
-                        for (let x = 0; x < 14; x++) {
-                                let col = this.board.colorAt(x, y); // 'violet' 'orange' 
+                        for (let x = 0; x < 14; x++) { 
+                                let col = this.state.boardInfo.colorAt(x, y);
                                 if (!col) continue;
                                 let id = 'board_' + x.toString(16) + y.toString(16);
                                 let cell = document.getElementById(id);
-                                let cls = col === 'violet' ? 'block0' : 'block1';
+                                if(!cell) continue ;
+                                let cls = 'block' + this.state.playerId;
                                 cell.classList.add(cls);
                         }
                 }
-                this.updateScore() ;
-//                this.setState({ boardInformation: boardInfo });
+
+                let currentScore = this.state.boardInfo.score(0);
+                let opponentCurrentScore = this.state.boardInfo.score(1);
+                if( currentScore + opponentCurrentScore !== 0 ){
+                        console.log('hi') ;
+                        this.setState({ 
+                                ownScore:currentScore,  
+                                opponentScore:opponentCurrentScore,
+                                boardInfo: this.state.boardInfo
+                        }) ;
+                }
+//                console.log(`currentScore: ${this.board.score(0)} opponentCurrentScore: ${this.board.score(1)}`);
         }
 
-        updateScore() {
-                let currentScore = this.board.score(0);
-                this.setState({score: currentScore}) ;
+        updateBoardColor() {
+                console.log('updtae Board Color') ;
+                for (let y = 0; y < 14; y++) {
+                        for (let x = 0; x < 14; x++) {
+//                                let col = this.board.colorAt(x, y); // 'violet' 'orange' 
+                                let col = this.state.boardInfo.colorAt(x, y);
+                                if (!col) continue;
+                                let id = 'board_' + x.toString(16) + y.toString(16);
+                                let cell = document.getElementById(id);
+                                if(!cell) continue ;
+                                let cls = 'block' + this.state.playerId;
+                                cell.classList.add(cls);
+                        }
+                }
         }
-
         onPlayerMove(move) {
-                this.board.doMove(move);
+                this.state.boardInfo.doMove(move);
                 this.update();
+                // 換敵人下 fix 
+                /*
+                if (!this.state.boardInfo.canMove()) {
+                        console.log('inside the onplayermove if') ;
+                        if (move.isPass())
+                                this.gameEnd();
+                        else {
+                                this.state.boardInfo.doPass();
+                                this.opponentMove();
+                        }
+                }
+                */
+        }
+
+        gameEnd() {
+                if(this.state.currentScore > this.state.opponentScore)
+                        alert('You win') ;
+                else if(this.state.currentScore < this.state.opponentScore)
+                        alert('You Lose') ;
+                else      
+                        alert('Tie') ;
         }
 
         rotate(elem, dir, x, y) {
@@ -139,7 +184,7 @@ class WebLokus extends React.Component {
                 y -= parseFloat(boardStyle.padding) + parseFloat(boardStyle.marginTop);
                 x = Math.floor(x / 40);
                 y = Math.floor(y / 40);
-                if (this.board.inBounds(x, y)) return { x, y };
+                if (this.state.boardInfo.inBounds(x, y)) return { x, y };
                 else return null;
         }
 
@@ -169,15 +214,10 @@ class WebLokus extends React.Component {
                         let x = clientX - deltaX; //elem.offsetLeft
                         let y = clientY - deltaY; //elem.offsetTop
                         let bpos = this.toBoardPosition(clientX, clientY);
-                        console.log(`moveHandler: elemId: ${elemId} direction:${elem.getAttribute('data-direction')}`);
-                        console.log(`moveHandler: elemId << 3 | elem.getAttribute('data-direction') = ${elemId << 3 | elem.getAttribute('data-direction')}`) ;
                         let pieceId = elemId << 3 | elem.getAttribute('data-direction');
-                        console.log(`moveHandler: pieceId: ${pieceId}`);
-                        
-                        if (bpos && this.board.isValidMove(new Move(bpos.x, bpos.y, pieceId))) {
-                                console.log('hello bpos and welcome epos');
+
+                        if (bpos && this.state.boardInfo.isValidMove(new Move(bpos.x, bpos.y, pieceId))) {
                                 let epos = this.fromBoardPosition(bpos);
-                                console.log(`epos: ${epos.x}  ${epos.y}`) ;
                                 elem.style.left = x + 'px';
                                 elem.style.top = y + 'px';
                         }
@@ -195,24 +235,13 @@ class WebLokus extends React.Component {
                         e.stopPropagation();
                         let bpos = this.toBoardPosition(clientX, clientY);
                         if (bpos) {
-                                console.log(`upHandler: clientX:${clientX} clientY:${clientY}`) ;
-                                console.log(`upHandler: bpos.x:${bpos.x} bpos.y:${bpos.y}`) ;
-                                console.log(`upHandler: elemId << 3 | elem.getAttribute('data-direction') : ${elemId << 3 | elem.getAttribute('data-direction')} `);
                                 let move = new Move(bpos.x, bpos.y, elemId << 3 | elem.getAttribute('data-direction'));
-                                console.log(`this.board.isValidMove(move): ${this.board.isValidMove(move)}`) ;
-                                if (this.board.isValidMove(move)) {
-                                        console.log('put on') ;
+                                console.log(`this.board.isValidMove(move): ${this.state.boardInfo.isValidMove(move)}`);
+                                if (this.state.boardInfo.isValidMove(move)) {
+                                        console.log('put on');
                                         elem.style.visibility = 'hidden';
                                         this.onPlayerMove(move);
                                 }
-                                /*
-                                console.log(`this.board.isValidMove(move): ${this.board.isValidMove(move)}`) ;
-                                elem.style.visibility = 'hidden';
-                                this.onPlayerMove(move);
-                                */
-
-                                // 拼圖推最旁邊 顯示在最旁邊
-                                // 拼圖放在合法地方消失
                         }
                 };
                 let mouseUp = (e) => {
@@ -230,7 +259,7 @@ class WebLokus extends React.Component {
                 if (!e.shiftKey)
                         return;
                 let { x, y } = containerOffset(e);
-                this.rotate(e.currentTarget,  'right', x, y);
+                this.rotate(e.currentTarget, 'right', x, y);
         }
 
         dblclick(e) {
@@ -240,12 +269,12 @@ class WebLokus extends React.Component {
                 this.rotate(e.currentTarget, 'flip', x, y);
         }
 
-        
-    //**** it's for testing    it's up to you to delete it or not */
+
+        //**** it's for testing    it's up to you to delete it or not */
         test = () => {
-            this.setState({
-                boardInfo: "Miao"
-            })
+                this.setState({
+                        boardInfo: "Miao"
+                })
         }
 
         render() {
@@ -256,39 +285,40 @@ class WebLokus extends React.Component {
                 drawback: the room will be required everytime.
                 */
                 var { roomToSendMsg } = require('./PlayGround');
-
+                console.log('1') ;
                 //only set listener once 
                 if (haventSetListener) {
-                    haventSetListener = false;
-                    listenMessageFromServer(roomToSendMsg, this);
-                    console.log("client listen to message from server!")
+                        haventSetListener = false;
+                        listenMessageFromServer(roomToSendMsg, this);
+                        console.log("client listen to message from server!") ;
                 }
                 if (this.state.boardInfo !== undefined) {
-                    sendMessageToServer(roomToSendMsg, this.state.boardInfo);
-            }
-            
-            /** 
-             *
-             if you wanna send more data you should pack it in a bigger object then parse it yourself,
-             you send what object to server you'll get the same one (by listenMessageFromServer setState)
-             *
-            */
-
-            /// second row is for testing, if you dont wanna test  delete it 
+                        console.log('send boardInfo to server');
+                        console.log(`send boardInfo : ${this.state.boardInfo.square}`) ;
+                        sendMessageToServer(roomToSendMsg, this.state.boardInfo);
+                }
+                /** 
+                     *
+                if you wanna send more data you should pack it in a bigger object then parse it yourself,
+                you send what object to server you'll get the same one (by listenMessageFromServer setState)
+                     *
+                */
+                /// second row is for testing, if you dont wanna test  delete it 
+                this.updateBoardColor() ;
+                console.log(`this.boardInfo: ${this.state.boardInfo.square}`) ;
                 return (
                         <Container>
                                 <Row>
                                         <Col xs="2"><img src={capoo} style={{ width: 150, margin: 40 }} /></Col>
                                         <Col xs="7">
-                                                <PlayingArea />
+                                                <PlayingArea boardInf={this.state.boardInfo}/>
                                         </Col>
                                         <Col xs="3">
-                                                <View onMouseDown={this.drag} onClick={this.click} onDoubleClick={this.dblclick} playerId={this.state.playerId} />
+                                                <RighSidePuzzleContainer onMouseDown={this.drag} onClick={this.click} onDoubleClick={this.dblclick} playerId={this.state.playerId} />
                                         </Col>
                                 </Row>
-                     
                                 <Row>
-                                    <Button onClick={this.test}>test: Click it set new state of boardInfo </Button>
+                                        <Button onClick={this.test}>test: Click it set new state of boardInfo </Button>
                                 </Row>
                         </Container >
                 );
@@ -296,3 +326,6 @@ class WebLokus extends React.Component {
 }
 
 export default WebLokus;
+
+// update -> return  所以沒改變 
+// puzzle 也要改變

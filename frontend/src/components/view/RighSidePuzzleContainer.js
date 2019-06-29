@@ -4,7 +4,7 @@ import { Puzzle } from '../puzzles/puzzle' ;
 
 const UNITLENGTH = 100;
 
-class View extends Component {
+class RighSidePuzzleContainer extends Component {
         constructor(props) {
                 super(props);
                 this.state = {
@@ -44,4 +44,4 @@ class View extends Component {
         }
 }
 
-export default View;
+export default RighSidePuzzleContainer;
