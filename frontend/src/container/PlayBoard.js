@@ -1,5 +1,6 @@
 //Library
 import React from 'react';
+import Popup from "reactjs-popup";
 import { Container, Row, Col, Button } from 'reactstrap';
 
 // Components
@@ -47,12 +48,13 @@ function containerOffset(e) {
 class WebLokus extends React.Component {
         constructor(props) {
                 super(props);
-                this.board = new Board();
+                this.board = new Board(1);
                 this.drag = this.drag.bind(this);
                 this.click = this.click.bind(this);
                 this.dblclick = this.dblclick.bind(this);
                 this.state = {
-                        playerId: 0, // 0,1
+                        playerId: this.board.player, // 0,1 //this.board.player
+                        turn: 0, // 0 1 alternate
                         ownScore: 0,
                         opponentScore: 0,
                         boardInfo: this.board
@@ -72,8 +74,8 @@ class WebLokus extends React.Component {
                         }
                 }
 
-                let currentScore = this.state.boardInfo.score(0);
-                let opponentCurrentScore = this.state.boardInfo.score(1);
+                let currentScore = this.state.boardInfo.score(this.state.playerId);
+                let opponentCurrentScore = this.state.boardInfo.score(this.state.playerId===0? 1:0);
                 if (currentScore + opponentCurrentScore !== 0) {
                         console.log('hi');
                         this.setState({
@@ -102,23 +104,23 @@ class WebLokus extends React.Component {
                 this.state.boardInfo.doMove(move);
                 this.update();
                 if (!this.state.boardInfo.canMove()) {
-                        console.log('inside the onplayermove if') ;
+                        console.log('inside the onplayermove if');
                         this.gameEnd();
                 }
-                
         }
 
         gameEnd() {
-                if (this.state.ownScore > this.state.opponentScore){
-                        alert('You '+this.state.ownScore + ' and ' + this.state.opponentScore) ;
+                let elem = document.getElementById("message") ;
+                if (this.state.ownScore > this.state.opponentScore) {
+                        elem.innerHTML =  ('Your: ' + this.state.ownScore + ' Opponent:  ' + this.state.opponentScore + ' so you win');
                 }
-                else if (this.this.state.ownScore < this.state.opponentScore){
-                        alert('You '+this.this.state.ownScore + ' and ' + this.state.opponentScore) ;
+                else if (this.state.ownScore < this.state.opponentScore){
+                        elem.innerHTML =  ('Your: ' + this.state.ownScore + ' Opponent:  ' + this.state.opponentScore + ' so you lose') ;
                 }
-                else{
-                        alert('You '+this.state.ownScore + ' and ' + this.state.opponentScore) ;
+                else {
+                        elem.innerHTML =  ('Your: ' + this.state.ownScore + ' Opponent:  ' + this.state.opponentScore + ' so tie');
                 }
-                        
+                
         }
 
         rotate(elem, dir, x, y) {
@@ -208,7 +210,6 @@ class WebLokus extends React.Component {
                         let y = clientY - deltaY; //elem.offsetTop
                         let bpos = this.toBoardPosition(clientX, clientY);
                         let pieceId = elemId << 3 | elem.getAttribute('data-direction');
-
                         if (bpos && this.state.boardInfo.isValidMove(new Move(bpos.x, bpos.y, pieceId))) {
                                 let epos = this.fromBoardPosition(bpos);
                                 elem.style.left = x + 'px';
@@ -296,7 +297,7 @@ class WebLokus extends React.Component {
                         }
                 }
                 */
-                
+
 
                 /** 
                      *
@@ -320,7 +321,24 @@ class WebLokus extends React.Component {
                                         </Col>
                                 </Row>
                                 <Row>
-                                        <Button onClick={this.test}>test: Click it set new state of boardInfo </Button>
+                                        <Popup trigger={<Button > Game Rules </Button>} modal>
+                                                <div>
+                                                        <div className="header"> Game Rules </div>
+                                                        <div className="content">
+                                                                <ul>
+                                                                        <li>1.自己的拼圖與拼圖需角對角放 不可碰到邊</li>
+                                                                        <li>2.紫色玩家從最左上角開始放, 橘色玩家從最右下角開始放</li>
+                                                                        <li>3.按shift+滑鼠點擊可以旋轉拼圖，雙擊兩下可以翻拼圖</li>
+                                                                        <li>4.分數的計算方式是看你下了多少個拼圖</li>
+                                                                        <li>4.當有一方沒得放的時候就結束</li>
+                                                                        <li>6.放置可能會感應不太到：（（（我很抱歉 如果確定是合法的就多移移看</li>
+                                                                </ul>
+                                                        </div>
+                                                </div>
+                                        </Popup>
+                                        <Col xs = "6">
+                                                <div ><span id="message">Playing......</span></div>
+                                        </Col>
                                 </Row>
                         </Container >
                 );

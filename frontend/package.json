@@ -25,15 +25,16 @@
   },
   "dependencies": {
     "@colyseus/schema": "^0.4.36",
-    "colyseus.js": "^0.10.8",
-    "react-router-dom": "^5.0.1",
     "bootstrap": "^4.3.1",
     "classnames": "^2.2.6",
+    "colyseus.js": "^0.10.8",
     "react": "^16.8.6",
     "react-dnd": "^7.6.0",
     "react-dnd-html5-backend": "^7.6.0",
     "react-dom": "^16.8.6",
     "react-flip-move": "^3.0.3",
+    "react-router-dom": "^5.0.1",
+    "reactjs-popup": "^1.4.1",
     "reactstrap": "^8.0.0"
   },
   "devDependencies": {
