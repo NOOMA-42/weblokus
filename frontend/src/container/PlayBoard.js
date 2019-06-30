@@ -1,5 +1,6 @@
 //Library
 import React from 'react';
+import Popup from "reactjs-popup";
 import { Container, Row, Col, Button } from 'reactstrap';
 
 // Components
@@ -7,7 +8,7 @@ import PlayingArea from '../components/maps/PlayingArea';
 import RighSidePuzzleContainer from '../components/view/RighSidePuzzleContainer';
 
 // Config
-import { pieceSet,puzzleSet } from '../components/puzzles/puzzle.config';
+import { pieceSet, puzzleSet } from '../components/puzzles/puzzle.config';
 import { Move, PASS } from '../methods/move';
 // Class
 import { Board } from '../methods/board';
@@ -17,10 +18,10 @@ import capoo from '../assets/image/hi.jpeg';
 const SCALE = 30;
 const VIOLET_MASK = 0x07;
 const ORANGE_MASK = 0x70;
-const VIOLET_EDGE = 0x01; 
-const ORANGE_EDGE = 0x10; 
-const VIOLET_SIDE = 0x02; 
-const ORANGE_SIDE = 0x20; 
+const VIOLET_EDGE = 0x01;
+const ORANGE_EDGE = 0x10;
+const VIOLET_SIDE = 0x02;
+const ORANGE_SIDE = 0x20;
 const VIOLET_BLOCK = 0x04; // 0000 0100
 const ORANGE_BLOCK = 0x40;  // 0100 0000
 
@@ -54,19 +55,7 @@ function containerOffset(e) {
 class WebLokus extends React.Component {
         constructor(props) {
                 super(props);
-                // board
-                this.square = [];
-                for (let y = 0; y < 14; y++) {
-                        this.square[y] = [];
-                        for (let x = 0; x < 14; x++)
-                                this.square[y][x] = 0;
-                }
-                this.square[0][0] = VIOLET_EDGE;
-                this.square[13][13] = ORANGE_EDGE;
-                this.history = [];
-                this.used = new Array(21 * 2);
-
-                //                this.board = new Board();
+                this.board = new Board(1);
                 this.drag = this.drag.bind(this);
                 this.click = this.click.bind(this);
                 this.dblclick = this.dblclick.bind(this);
@@ -81,8 +70,8 @@ class WebLokus extends React.Component {
                         test: ""
                         //                        currentBoard: this.board
                 }
+                return true;
         }
-        // board method 
         inBounds = (x, y) => { return (x >= 0 && y >= 0 && x < 14 && y < 14); }
         turn = () => { return this.history.length; }
         player = () => { return 0; }
@@ -96,18 +85,18 @@ class WebLokus extends React.Component {
                 return null;
         }
         isValidMove = (move) => {
-                console.log(`move.blockId() ${move.blockId()}`) ;
+                console.log(`move.blockId() ${move.blockId()}`);
                 if (move.isPass()) {
                         return true;
                 }
-                console.log(`this.state.blockUsed: ${this.state.blockUsed}`) ;
-                console.log('sssss') ;
+                console.log(`this.state.blockUsed: ${this.state.blockUsed}`);
+                console.log('sssss');
                 if (this.state.blockUsed[move.blockId() + this.player() * 21]) {
                         return false;
                 }
-                console.log('ttttt') ;
+                console.log('ttttt');
                 let coords = move.coords();
-                console.log(`coords: ${coords}`) ;
+                console.log(`coords: ${coords}`);
                 if (!this.isMovable(coords)) {
                         return false;
                 }
@@ -152,7 +141,6 @@ class WebLokus extends React.Component {
                 this.state.blockUsed[move.blockId() + this.player() * 21] = true;
                 this.state.history.push(move);
         }
-        doPass = () => { this.state.history.push(PASS); }
         score = (player) => {
                 let score = 0;
                 for (let i = 0; i < 21; i++) {
@@ -172,7 +160,7 @@ class WebLokus extends React.Component {
                 }
                 return true;
         }
-
+        doPass = () => { this.state.history.push(PASS); }
         isUsed = (player, blockId) => {
                 return this.state.blockUsed[blockId + player * 21];
         }
@@ -206,8 +194,8 @@ class WebLokus extends React.Component {
                         }
                 }
 
-                let currentScore = this.score(0);
-                let opponentCurrentScore = this.score(1);
+                let currentScore = this.state.boardInfo.score(this.state.playerId);
+                let opponentCurrentScore = this.state.boardInfo.score(this.state.playerId === 0 ? 1 : 0);
                 if (currentScore + opponentCurrentScore !== 0) {
                         this.setState((prevState) => ({
                                 ownScore: currentScore,
@@ -215,11 +203,11 @@ class WebLokus extends React.Component {
                                 boardInfo: this.square,
                                 blockUsed: this.used,
                                 history: this.history
-                        }), ()=> {
-                                        var { roomToSendMsg } = require('./PlayGround');
-                                        console.log(`send boardInfo : ${this.state.boardInfo} ${this.state.blockUsed}`);
-                                        sendMessageToServer(roomToSendMsg, this.state.boardInfo, this.state.blockUsed, this.state.history);
-                                }
+                        }), () => {
+                                var { roomToSendMsg } = require('./PlayGround');
+                                console.log(`send boardInfo : ${this.state.boardInfo} ${this.state.blockUsed}`);
+                                sendMessageToServer(roomToSendMsg, this.state.boardInfo, this.state.blockUsed, this.state.history);
+                        }
                         );
                 }
 
@@ -228,7 +216,7 @@ class WebLokus extends React.Component {
 
         updateBoardColor() {
                 console.log('updtae Board Color');
-//                console.log(`this.state.boardInfo: ${this.state.boardInfo.square}  and ${this.state.boardInfo.colorAt(0, 0)}`);
+                //                console.log(`this.state.boardInfo: ${this.state.boardInfo.square}  and ${this.state.boardInfo.colorAt(0, 0)}`);
                 for (let y = 0; y < 14; y++) {
                         for (let x = 0; x < 14; x++) {
                                 let col = this.colorAt(x, y);
@@ -245,22 +233,22 @@ class WebLokus extends React.Component {
         onPlayerMove(move) {
                 this.doMove(move);
                 this.update();
-                if (!this.canMove()) {
+                if (!this.state.boardInfo.canMove()) {
                         console.log('inside the onplayermove if');
                         this.gameEnd();
                 }
-
         }
 
         gameEnd() {
+                let elem = document.getElementById("message");
                 if (this.state.ownScore > this.state.opponentScore) {
-                        alert('You ' + this.state.ownScore + ' and ' + this.state.opponentScore);
+                        elem.innerHTML = ('Your: ' + this.state.ownScore + ' Opponent:  ' + this.state.opponentScore + ' so you win');
                 }
-                else if (this.this.state.ownScore < this.state.opponentScore) {
-                        alert('You ' + this.this.state.ownScore + ' and ' + this.state.opponentScore);
+                else if (this.state.ownScore < this.state.opponentScore) {
+                        elem.innerHTML = ('Your: ' + this.state.ownScore + ' Opponent:  ' + this.state.opponentScore + ' so you lose');
                 }
                 else {
-                        alert('You ' + this.state.ownScore + ' and ' + this.state.opponentScore);
+                        elem.innerHTML = ('Your: ' + this.state.ownScore + ' Opponent:  ' + this.state.opponentScore + ' so tie');
                 }
 
         }
@@ -443,7 +431,7 @@ class WebLokus extends React.Component {
                      *
                 */
                 /// second row is for testing, if you dont wanna test  delete it 
-//                console.log(`this.boardInfo: ${this.state.boardInfo.square}`);
+                //                console.log(`this.boardInfo: ${this.state.boardInfo.square}`);
                 console.log(`in the render this.state.boardInfo: ${this.state.boardInfo}`);
                 //                console.log(`this.boardInfo: ${this.state.boardInfo.player()}`) ;
                 this.updateBoardColor();
@@ -459,7 +447,24 @@ class WebLokus extends React.Component {
                                         </Col>
                                 </Row>
                                 <Row>
-                                        <Button onClick={this.test}>test: Click it set new state of boardInfo </Button>
+                                        <Popup trigger={<Button > Game Rules </Button>} modal>
+                                                <div>
+                                                        <div className="header"> Game Rules </div>
+                                                        <div className="content">
+                                                                <ul>
+                                                                        <li>1.自己的拼圖與拼圖需角對角放 不可碰到邊</li>
+                                                                        <li>2.紫色玩家從最左上角開始放, 橘色玩家從最右下角開始放</li>
+                                                                        <li>3.按shift+滑鼠點擊可以旋轉拼圖，雙擊兩下可以翻拼圖</li>
+                                                                        <li>4.分數的計算方式是看你下了多少個拼圖</li>
+                                                                        <li>4.當有一方沒得放的時候就結束</li>
+                                                                        <li>6.放置可能會感應不太到：（（（我很抱歉 如果確定是合法的就多移移看</li>
+                                                                </ul>
+                                                        </div>
+                                                </div>
+                                        </Popup>
+                                        <Col xs="6">
+                                                <div ><span id="message">Playing......</span></div>
+                                        </Col>
                                 </Row>
                         </Container >
                 );

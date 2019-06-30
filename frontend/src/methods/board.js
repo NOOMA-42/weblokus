@@ -10,7 +10,7 @@ const VIOLET_BLOCK = 0x04; // 0000 0100
 const ORANGE_BLOCK = 0x40;  // 0100 0000
 
 export class Board {
-        constructor(path) {
+        constructor(player,path) {
                 this.square = [];
                 for (let y = 0; y < 14; y++) {
                         this.square[y] = [];
@@ -21,7 +21,7 @@ export class Board {
                 this.square[13][13] = ORANGE_EDGE;
                 this.history = [];
                 this.used = new Array(21 * 2);
-
+                this.player = player ;
                 if (path) {
                         let moves = path.split('/');
                         for (let i = 0; i < moves.length; i++) {
@@ -53,7 +53,7 @@ export class Board {
 //                        console.log('isValidMove 1') ;
                         return true;
                 }
-                if (this.used[move.blockId() + this.player() * 21]){
+                if (this.used[move.blockId() + this.player * 21]){
 //                        console.log('isValidMove 2') ;
                         return false;
                 }
@@ -64,7 +64,7 @@ export class Board {
                 }
                 for (let i = 0; i < coords.length; i++) {
                         if (this.square[coords[i].y][coords[i].x] &
-                                [VIOLET_EDGE, ORANGE_EDGE][this.player()]){
+                                [VIOLET_EDGE, ORANGE_EDGE][this.player]){
 //                                console.log('isValidMove 4') ;
                                 return true;
                         }
@@ -79,9 +79,9 @@ export class Board {
                 }
                 let coords = move.coords();
                 console.log(coords);
-                let block = [VIOLET_BLOCK, ORANGE_BLOCK][this.player()];
-                let side_bit = [VIOLET_SIDE, ORANGE_SIDE][this.player()];
-                let edge_bit = [VIOLET_EDGE, ORANGE_EDGE][this.player()];
+                let block = [VIOLET_BLOCK, ORANGE_BLOCK][this.player];
+                let side_bit = [VIOLET_SIDE, ORANGE_SIDE][this.player];
+                let edge_bit = [VIOLET_EDGE, ORANGE_EDGE][this.player];
                 for (let i = 0; i < coords.length; i++) {
                         let { x, y } = coords[i];
                         this.square[y][x] |= block;
@@ -102,7 +102,7 @@ export class Board {
                         if (this.inBounds(x + 1, y + 1))
                                 this.square[y + 1][x + 1] |= edge_bit;
                 }
-                this.used[move.blockId() + this.player() * 21] = true;
+                this.used[move.blockId() + this.player * 21] = true;
                 this.history.push(move);
         }
         doPass() { this.history.push(PASS); }
@@ -116,7 +116,7 @@ export class Board {
         }
         _isMovable(coords) {
                 let mask = (VIOLET_BLOCK | ORANGE_BLOCK) |
-                        [VIOLET_SIDE, ORANGE_SIDE][this.player()];
+                        [VIOLET_SIDE, ORANGE_SIDE][this.player];
                 for (let i = 0; i < coords.length; i++) {
                         let { x, y } = coords[i];
 //                        console.log(`this.square[y][x] & mask : ${ this.square[y][x] & mask}`) ;
@@ -131,7 +131,7 @@ export class Board {
         canMove() {
                 for (let p in pieceSet) {
                         let id = pieceSet[p].id;
-                        if (this.used[(id >> 3) + this.player() * 21])
+                        if (this.used[(id >> 3) + this.player * 21])
                                 continue;
                         for (let y = 0; y < 14; y++) {
                                 for (let x = 0; x < 14; x++) {
