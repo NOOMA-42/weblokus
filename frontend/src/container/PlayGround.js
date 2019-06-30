@@ -4,7 +4,8 @@ import { Button, Form, FormGroup, Input } from 'reactstrap'
 import { DataChange } from '@colyseus/schema'
 import PlayBoard from './PlayBoard';
 
-var roomToSendMsg;
+var roomToSendMs = true, toSendMessage = false, toReceiveMessage = false;
+
 
 class PlayGround extends Component{
   constructor() {
@@ -165,7 +166,7 @@ class PlayGround extends Component{
         {    
           this.state.createRoom ? (
           <>
-          <h2>your room ID:{this.state.roomID} send it to your friends, if you have</h2>
+          <h2>your room ID: {this.state.roomID} send it to your friends, if you have</h2>
           <Button>Return Back Game</Button>
           </>
           ):(<>
@@ -215,16 +216,18 @@ export default PlayGround;
 
 // for board to send message
 export var roomToSendMsg = roomToSendMsg;
+// explained in PlayBoard
+
 
 export function sendMessageToServer(room, boardInfo) {
   room.send(boardInfo);
+  console.log("send message to server");
 }
 
 export function listenMessageFromServer(room, boardObjectToSetState) {
-  room.onMessage.add ( (newBoardInfo) => {
-    console.log(`newBoardInfo: ${newBoardInfo.square}`) ;
-    boardObjectToSetState.setState((state) => { boardInfo: newBoardInfo}, ()=>{
-      console.log(boardObjectToSetState.state.boardInfo.square) ;
-    }) ;
+  room.onMessage.add((newBoardInfo) => {
+    boardObjectToSetState.setState(state => {
+      return { test: newBoardInfo }
     });
+  });
 }

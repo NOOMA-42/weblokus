@@ -42,14 +42,14 @@ class playGround extends Room{
             : this.clients.length > 0;
     }
 
-    onMessage (client, message) {
+    onMessage(client, message) {
         // broadcast a message to all clients
         console.log("broadcast to all the clients")
         console.log(message);
-        this.broadcast(message);
-        //{ except: client }
+        this.broadcast(message, { except: client });
+        //
     }
-
+    
     async onLeave(client, consented) {
         // flag client as inactive for other users
         //this.state.players[client.sessionId].connected = false;

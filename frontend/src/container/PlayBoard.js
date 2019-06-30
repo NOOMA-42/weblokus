@@ -36,7 +36,7 @@ usage:
         function listenMessageFromServer(room, boardObjectToSetState) ***not done yet
 */
 import { sendMessageToServer, listenMessageFromServer } from './PlayGround';
-var haventSetListener = true;
+var haventSetListener = true, toSendMessage = false, initialize = true;
 
 function containerOffset(e) {
         let x = e.currentTarget.offsetLeft;
@@ -56,7 +56,8 @@ class WebLokus extends React.Component {
                         ownScore: undefined,
                         opponentScore: undefined,
                         boardInfo: this.board,
-                        
+                        receiveMsg: false,
+                        test: ""
 //                        currentBoard: this.board
                 }
         }
@@ -77,13 +78,15 @@ class WebLokus extends React.Component {
                 let currentScore = this.state.boardInfo.score(0);
                 let opponentCurrentScore = this.state.boardInfo.score(1);
                 if( currentScore + opponentCurrentScore !== 0 ){
-                        console.log('hi') ;
-                        this.setState({ 
+                        this.setState((prevState) => ({ 
                                 ownScore:currentScore,  
                                 opponentScore:opponentCurrentScore,
                                 boardInfo: this.state.boardInfo
-                        }) ;
+                        }));
+                    console.log('hi');
+                    toSendMessage = true;
                 }
+            
 //                console.log(`currentScore: ${this.board.score(0)} opponentCurrentScore: ${this.board.score(1)}`);
         }
 
@@ -102,7 +105,7 @@ class WebLokus extends React.Component {
                         }
                 }
         }
-        onPlayerMove(move) {
+        onPlayerMove(move) { 
                 this.state.boardInfo.doMove(move);
                 this.update();
                 // 換敵人下 fix 
@@ -272,9 +275,10 @@ class WebLokus extends React.Component {
 
         //**** it's for testing    it's up to you to delete it or not */
         test = () => {
-                this.setState({
-                        boardInfo: "Miao"
-                })
+            this.setState({
+                    test: this.state.boardInfo
+            })
+            toSendMessage = true;
         }
 
         render() {
@@ -285,27 +289,27 @@ class WebLokus extends React.Component {
                 drawback: the room will be required everytime.
                 */
                 var { roomToSendMsg } = require('./PlayGround');
-                console.log('1') ;
-                //only set listener once 
-                if (haventSetListener) {
-                        haventSetListener = false;
-                        listenMessageFromServer(roomToSendMsg, this);
-                        console.log("client listen to message from server!") ;
+                
+                if (initialize) {
+                    listenMessageFromServer(roomToSendMsg, this);
+                    console.log("client listen to message from server!");
+                    initialize = false;
                 }
-                if (this.state.boardInfo !== undefined) {
-                        console.log('send boardInfo to server');
-                        console.log(`send boardInfo : ${this.state.boardInfo.square}`) ;
-                        sendMessageToServer(roomToSendMsg, this.state.boardInfo);
+                else if (toSendMessage) {
+                    console.log(`send boardInfo : ${this.state.boardInfo.square}`) ;
+                    toSendMessage = false;
+                    sendMessageToServer(roomToSendMsg, this.state.boardInfo);
                 }
-                /** 
+                console.log(this.state.test)
+                    /**
                      *
                 if you wanna send more data you should pack it in a bigger object then parse it yourself,
                 you send what object to server you'll get the same one (by listenMessageFromServer setState)
                      *
                 */
                 /// second row is for testing, if you dont wanna test  delete it 
-                this.updateBoardColor() ;
                 console.log(`this.boardInfo: ${this.state.boardInfo.square}`) ;
+                this.updateBoardColor();
                 return (
                         <Container>
                                 <Row>
