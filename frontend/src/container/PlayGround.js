@@ -214,17 +214,17 @@ export default PlayGround;
 
 
 // for board to send message
-export var roomToSendMsg = roomToSendMsg;
+export  {roomToSendMsg} ;
 
 export function sendMessageToServer(room, boardInfo) {
+  console.log(`sendMessageToServer: ${boardInfo}`) ;
   room.send(boardInfo);
 }
 
 export function listenMessageFromServer(room, boardObjectToSetState) {
   room.onMessage.add ( (newBoardInfo) => {
     console.log(`newBoardInfo: ${newBoardInfo.square}`) ;
-    boardObjectToSetState.setState((state) => { boardInfo: newBoardInfo}, ()=>{
-      console.log(boardObjectToSetState.state.boardInfo.square) ;
-    }) ;
+    boardObjectToSetState.setState(state => ({ boardInfo: newBoardInfo})) ;
+    console.log('123') ; 
     });
 }

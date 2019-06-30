@@ -53,22 +53,20 @@ class WebLokus extends React.Component {
                 this.dblclick = this.dblclick.bind(this);
                 this.state = {
                         playerId: 0, // 0,1
-                        ownScore: undefined,
-                        opponentScore: undefined,
-                        boardInfo: this.board,
-                        
-//                        currentBoard: this.board
+                        ownScore: 0,
+                        opponentScore: 0,
+                        boardInfo: this.board
                 }
         }
-        
+
         update() {
                 for (let y = 0; y < 14; y++) {
-                        for (let x = 0; x < 14; x++) { 
+                        for (let x = 0; x < 14; x++) {
                                 let col = this.state.boardInfo.colorAt(x, y);
                                 if (!col) continue;
                                 let id = 'board_' + x.toString(16) + y.toString(16);
                                 let cell = document.getElementById(id);
-                                if(!cell) continue ;
+                                if (!cell) continue;
                                 let cls = 'block' + this.state.playerId;
                                 cell.classList.add(cls);
                         }
@@ -76,27 +74,25 @@ class WebLokus extends React.Component {
 
                 let currentScore = this.state.boardInfo.score(0);
                 let opponentCurrentScore = this.state.boardInfo.score(1);
-                if( currentScore + opponentCurrentScore !== 0 ){
-                        console.log('hi') ;
-                        this.setState({ 
-                                ownScore:currentScore,  
-                                opponentScore:opponentCurrentScore,
+                if (currentScore + opponentCurrentScore !== 0) {
+                        console.log('hi');
+                        this.setState({
+                                ownScore: currentScore,
+                                opponentScore: opponentCurrentScore,
                                 boardInfo: this.state.boardInfo
-                        }) ;
+                        });
                 }
-//                console.log(`currentScore: ${this.board.score(0)} opponentCurrentScore: ${this.board.score(1)}`);
         }
 
         updateBoardColor() {
-                console.log('updtae Board Color') ;
+                console.log('updtae Board Color');
                 for (let y = 0; y < 14; y++) {
                         for (let x = 0; x < 14; x++) {
-//                                let col = this.board.colorAt(x, y); // 'violet' 'orange' 
                                 let col = this.state.boardInfo.colorAt(x, y);
                                 if (!col) continue;
                                 let id = 'board_' + x.toString(16) + y.toString(16);
                                 let cell = document.getElementById(id);
-                                if(!cell) continue ;
+                                if (!cell) continue;
                                 let cls = 'block' + this.state.playerId;
                                 cell.classList.add(cls);
                         }
@@ -105,27 +101,24 @@ class WebLokus extends React.Component {
         onPlayerMove(move) {
                 this.state.boardInfo.doMove(move);
                 this.update();
-                // 換敵人下 fix 
-                /*
                 if (!this.state.boardInfo.canMove()) {
                         console.log('inside the onplayermove if') ;
-                        if (move.isPass())
-                                this.gameEnd();
-                        else {
-                                this.state.boardInfo.doPass();
-                                this.opponentMove();
-                        }
+                        this.gameEnd();
                 }
-                */
+                
         }
 
         gameEnd() {
-                if(this.state.currentScore > this.state.opponentScore)
-                        alert('You win') ;
-                else if(this.state.currentScore < this.state.opponentScore)
-                        alert('You Lose') ;
-                else      
-                        alert('Tie') ;
+                if (this.state.ownScore > this.state.opponentScore){
+                        alert('You '+this.state.ownScore + ' and ' + this.state.opponentScore) ;
+                }
+                else if (this.this.state.ownScore < this.state.opponentScore){
+                        alert('You '+this.this.state.ownScore + ' and ' + this.state.opponentScore) ;
+                }
+                else{
+                        alert('You '+this.state.ownScore + ' and ' + this.state.opponentScore) ;
+                }
+                        
         }
 
         rotate(elem, dir, x, y) {
@@ -277,6 +270,7 @@ class WebLokus extends React.Component {
                 })
         }
 
+
         render() {
                 /* 
                 require moment:
@@ -285,18 +279,25 @@ class WebLokus extends React.Component {
                 drawback: the room will be required everytime.
                 */
                 var { roomToSendMsg } = require('./PlayGround');
-                console.log('1') ;
+
+                console.log('1');
                 //only set listener once 
+                /*
                 if (haventSetListener) {
                         haventSetListener = false;
                         listenMessageFromServer(roomToSendMsg, this);
-                        console.log("client listen to message from server!") ;
+                        console.log("client listen to message from server!");
+                } else {
+                        console.log('ready to send message to server') ;
+                        if (this.state.boardInfo !== undefined) {
+                                console.log('send boardInfo to server');
+                                console.log(`send boardInfo : ${this.state.boardInfo.square}`);
+                                sendMessageToServer(roomToSendMsg, this.state.boardInfo);
+                        }
                 }
-                if (this.state.boardInfo !== undefined) {
-                        console.log('send boardInfo to server');
-                        console.log(`send boardInfo : ${this.state.boardInfo.square}`) ;
-                        sendMessageToServer(roomToSendMsg, this.state.boardInfo);
-                }
+                */
+                
+
                 /** 
                      *
                 if you wanna send more data you should pack it in a bigger object then parse it yourself,
@@ -304,14 +305,15 @@ class WebLokus extends React.Component {
                      *
                 */
                 /// second row is for testing, if you dont wanna test  delete it 
-                this.updateBoardColor() ;
-                console.log(`this.boardInfo: ${this.state.boardInfo.square}`) ;
+                console.log(`this.state.boardInfo.square: ${this.state.boardInfo.square}`);
+                this.updateBoardColor();
+
                 return (
                         <Container>
                                 <Row>
                                         <Col xs="2"><img src={capoo} style={{ width: 150, margin: 40 }} /></Col>
                                         <Col xs="7">
-                                                <PlayingArea boardInf={this.state.boardInfo}/>
+                                                <PlayingArea boardInf={this.state.boardInfo} />
                                         </Col>
                                         <Col xs="3">
                                                 <RighSidePuzzleContainer onMouseDown={this.drag} onClick={this.click} onDoubleClick={this.dblclick} playerId={this.state.playerId} />
@@ -327,5 +329,3 @@ class WebLokus extends React.Component {
 
 export default WebLokus;
 
-// update -> return  所以沒改變 
-// puzzle 也要改變

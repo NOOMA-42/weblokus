@@ -43,6 +43,7 @@ class PlayingArea extends React.Component {
         }
 
         render() {
+                console.log(`in playingarea: ${this.props.boardInf.square}`) ;
                 return (
                         <div id="board">
                                 <div className='board-border'>
