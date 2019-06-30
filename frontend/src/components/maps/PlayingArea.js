@@ -3,12 +3,12 @@ import classNames from 'classnames' ;
 
 const BOARD_WIDTH = 14;
 const BOARD_HEIGHT = 14;
-const SQUARE_SIZE = 40;
-const SINGLEPIECE_OFFSET = 3;
 class BoardSquare extends React.Component {
         renderSquare() {
                 const classes = classNames({
-                        'board-square': true
+                        'board-square': true,
+                        'block0': (this.props.color === 'violet')? true:false,
+                        'block1': (this.props.color === 'orange')? true:false
                 });
                 return <div className={classes} id={this.props.id}></div>
         }
@@ -17,6 +17,7 @@ class BoardSquare extends React.Component {
         }
 }
 class PlayingArea extends React.Component {
+
         renderBoardSquares() {
                 const range = n => Array.from(new Array(n), (x, i) => i);
                 const matrixProduct = (x, y) => {
@@ -34,6 +35,7 @@ class PlayingArea extends React.Component {
                                                 y={rowIndex}
                                                 id={`board_${index.toString(16)}${rowIndex.toString(16)}`}
                                                 key={`${index}+${rowIndex}`}
+                                                color={this.props.boardInf.colorAt(index,rowIndex) } 
                                         />
                                 );
                         })
@@ -41,6 +43,7 @@ class PlayingArea extends React.Component {
         }
 
         render() {
+                console.log(`in playingarea: ${this.props.boardInf.square}`) ;
                 return (
                         <div id="board">
                                 <div className='board-border'>
