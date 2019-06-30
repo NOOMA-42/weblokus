@@ -1,12 +1,11 @@
-
-
 import React, { Component }from 'react'
 import { Client } from 'colyseus.js'
-import { Button, Form, FormGroup, Input } from 'reactstrap'
+import { Jumbotron,Button, Form, FormGroup, Input } from 'reactstrap'
 import { DataChange } from '@colyseus/schema'
 import { AwesomeButton,AwesomeButtonProgress } from "react-awesome-button";
 import AwesomeButtonStyles from "react-awesome-button/src/styles/styles.scss";
 import PlayBoard from './PlayBoard';
+import {CopyToClipboard} from 'react-copy-to-clipboard';
 
 var roomToSendMsg;
 
@@ -46,46 +45,6 @@ class PlayGround extends Component{
       // detect change on backend state and update frontend state
       
       // to be used
-      /*
-      this.room.state.onChange = (changes) => {
-        changes.forEach(change => {
-            console.log("state on change");
-            console.log(change);
-            
-          change packs only field value prevvalue
-          value prev: Map Schema
-          field: Player
-            
-            console.log("MMM"+change.field);
-            console.log("MMM"+change.value);
-            console.log("MMM"+change.previousValue);
-        });
-    };
-      
-      
-      this.room.state.players.onAdd = (player, key) => {
-        // player is schema object
-        console.log("onAdd: ");
-        console.log("key: "+key) // player session ID
-        console.log(player, "has been added at", key);
-    
-        // add your player entity to the game world!
-    
-        // If you want to track changes on a child object inside a map, this is a common pattern:
-        player.onChange = function(changes) {
-          console.log("onChange: ")
-            changes.forEach(change => {
-                console.log(change);// only include field value prevValue
-                console.log("onChange: "+change.field); // connected
-                console.log("onChange: "+change.value);// true
-                console.log("onChange: "+change.previousValue); // undefined
-            })
-        };
-    
-        // force "onChange" to be called immediatelly
-        player.triggerAll();
-    };
-    */
     })
     
     // change client's frontend status
@@ -166,47 +125,69 @@ class PlayGround extends Component{
     //create new game or join by id or return if in game
     return (
       <>
-        <h1>Play Ground</h1>
-        {    
-          this.state.createRoom ? (
-          <>
-          <div className="playground">
-            <h2>your room ID:{this.state.roomID} send it to your friends, if you have</h2>
-            <Button>Return Back Game</Button>
-          </div>
-          
-          </>
-          ):(<>
-          <div className="playground">
-          <h2>2 entries into game</h2>
-          <AwesomeButton onPress={this.create} type="primary">New Room</AwesomeButton>
-          <Form onSubmit={this.submitHandler}>
-            <FormGroup row>
-              <Input
-                type="text"
-                name="roomID"
-                id="roomID"
-                value={this.state.submit}
-                placeholder="enter room ID"
-                onChange={e => this.setState({ submit: e.target.value })}
-              />
-              <AwesomeButton type="submit" style={AwesomeButtonStyles}>
-                
-                Let's go!
-              
-              </AwesomeButton>
-              
-            </FormGroup>
-          </Form>
-          </div>
-         
-          
-          </>)
-        }
-        <h1>testing functions below</h1>
-        <AwesomeButton onPress={this.available} type="secondary">available</AwesomeButton>
-        <AwesomeButton onPress={this.join} type="secondary">join</AwesomeButton>        
+      
+      <div style={{margin:'20px 20%',padding:"10%",textAlign:"center"}}>
        
+        <h1>WebLoKus</h1>
+        <div className="playground">
+              
+        <Form onSubmit={this.submitHandler} style={{padding:'3%'}}>
+          <FormGroup >
+            <div>
+            <Input
+              type="text"
+              name="roomID"
+              id="roomID"
+              value={this.state.submit}
+              placeholder="enter room ID"
+              onChange={e => this.setState({ submit: e.target.value })}
+            />
+            <AwesomeButton type="submit" style={{color:"orange"}}>
+            Let's go!
+            </AwesomeButton>
+
+            </div>
+            
+              
+             
+            
+          </FormGroup>
+        </Form>
+        </div>
+
+        <div className ="createRoom">
+          <small style={{padding:"2% 3%"}}>Don't have a room? <br/>click here to get a new room ID</small>
+        <br/>
+        <AwesomeButton onPress={this.create} style={{margin:"12px"}} type="primary">New Room</AwesomeButton>
+        {this.state.createRoom?
+        <div className="playground">
+          <Jumbotron style={{padding:"3px"}}>
+          <small>your room ID:  </small>{this.state.roomID}<br/>
+          <hr/>
+          <small style={{height:"1px"}}>Share with your friends,<br/> well, if you have one...</small>
+          <CopyToClipboard text={this.state.roomID}
+          onCopy={() => this.setState({copied: true})}>
+            
+          <button type="primary" style={{color:"black",height:"40px",padding:"0 4px",alignItems:"right"}}>
+            {this.state.copied?<small>copied</small>:<small>copy</small>}
+          </button>
+        </CopyToClipboard>
+      </Jumbotron>
+          </div>:<div/>}
+        </div>
+
+        <hr/>
+        
+      <small>testing functions below</small>
+      <div>
+        <AwesomeButton onPress={this.available} type="secondary">available</AwesomeButton>
+        <AwesomeButton onPress={this.join} type="secondary">join</AwesomeButton>    
+      </div>
+          
+     
+
+      </div>
+        
       </>
     );
   }
