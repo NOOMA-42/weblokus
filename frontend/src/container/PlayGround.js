@@ -4,7 +4,8 @@ import { Button, Form, FormGroup, Input } from 'reactstrap'
 import { DataChange } from '@colyseus/schema'
 import PlayBoard from './PlayBoard';
 
-var roomToSendMsg;
+var roomToSendMs = true, toSendMessage = false, toReceiveMessage = false;
+
 
 class PlayGround extends Component{
   constructor() {
@@ -165,7 +166,7 @@ class PlayGround extends Component{
         {    
           this.state.createRoom ? (
           <>
-          <h2>your room ID:{this.state.roomID} send it to your friends, if you have</h2>
+          <h2>your room ID: {this.state.roomID} send it to your friends, if you have</h2>
           <Button>Return Back Game</Button>
           </>
           ):(<>
@@ -214,17 +215,26 @@ export default PlayGround;
 
 
 // for board to send message
-export  {roomToSendMsg} ;
+export var roomToSendMsg = roomToSendMsg;
+// explained in PlayBoard
 
-export function sendMessageToServer(room, boardInfo) {
-  console.log(`sendMessageToServer: ${boardInfo}`) ;
+// 這邊我不知道要怎麼send這些東東 你再幫我改 如果沒送到會有問題
+export function sendMessageToServer(room, boardInfo, blockUsed, history) {
+  console.log(`sendMessageToServer: ${boardInfo} ${blockUsed} ${history}`) ;
   room.send(boardInfo);
+  console.log("send message to server");
 }
 
 export function listenMessageFromServer(room, boardObjectToSetState) {
-  room.onMessage.add ( (newBoardInfo) => {
-    console.log(`newBoardInfo: ${newBoardInfo.square}`) ;
-    boardObjectToSetState.setState(state => ({ boardInfo: newBoardInfo})) ;
-    console.log('123') ; 
-    });
+  room.onMessage.add( (newBoardInfo, newBoardUsed, newBoardHistory) => {
+    boardObjectToSetState.setState(state => (
+      {
+        boardInfo: newBoardInfo,
+        blockUsed: newBoardUsed,
+        history: newBoardHistory
+      }
+    )
+    , () => console.log(`after setState boardInfo: ${boardObjectToSetState.state.boardInfo}`));
+  } );
 }
+

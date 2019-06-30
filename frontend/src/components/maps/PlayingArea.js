@@ -3,6 +3,18 @@ import classNames from 'classnames' ;
 
 const BOARD_WIDTH = 14;
 const BOARD_HEIGHT = 14;
+const VIOLET_BLOCK = 0x04; // 0000 0100
+const ORANGE_BLOCK = 0x40;  // 0100 0000
+
+function colorAt(array,x, y) {
+        if (array[y][x] & VIOLET_BLOCK) {
+                return 'violet';
+        }
+        if (array[y][x] & ORANGE_BLOCK) {
+                return 'orange';
+        }
+        return null;
+}
 class BoardSquare extends React.Component {
         renderSquare() {
                 const classes = classNames({
@@ -35,7 +47,7 @@ class PlayingArea extends React.Component {
                                                 y={rowIndex}
                                                 id={`board_${index.toString(16)}${rowIndex.toString(16)}`}
                                                 key={`${index}+${rowIndex}`}
-                                                color={this.props.boardInf.colorAt(index,rowIndex) } 
+                                                color={colorAt(this.props.boardInf,index,rowIndex) } 
                                         />
                                 );
                         })
@@ -43,7 +55,7 @@ class PlayingArea extends React.Component {
         }
 
         render() {
-                console.log(`in playingarea: ${this.props.boardInf.square}`) ;
+//                console.log(`in playingarea: ${this.props.boardInf.square}`) ;
                 return (
                         <div id="board">
                                 <div className='board-border'>

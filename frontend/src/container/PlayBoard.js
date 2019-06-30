@@ -7,15 +7,22 @@ import PlayingArea from '../components/maps/PlayingArea';
 import RighSidePuzzleContainer from '../components/view/RighSidePuzzleContainer';
 
 // Config
-import { puzzleSet } from '../components/puzzles/puzzle.config';
-
+import { pieceSet,puzzleSet } from '../components/puzzles/puzzle.config';
+import { Move, PASS } from '../methods/move';
 // Class
 import { Board } from '../methods/board';
-import { Move } from '../methods/move';
 
 //image
 import capoo from '../assets/image/hi.jpeg';
 const SCALE = 30;
+const VIOLET_MASK = 0x07;
+const ORANGE_MASK = 0x70;
+const VIOLET_EDGE = 0x01; 
+const ORANGE_EDGE = 0x10; 
+const VIOLET_SIDE = 0x02; 
+const ORANGE_SIDE = 0x20; 
+const VIOLET_BLOCK = 0x04; // 0000 0100
+const ORANGE_BLOCK = 0x40;  // 0100 0000
 
 /*
 20190628
@@ -36,7 +43,7 @@ usage:
         function listenMessageFromServer(room, boardObjectToSetState) ***not done yet
 */
 import { sendMessageToServer, listenMessageFromServer } from './PlayGround';
-var haventSetListener = true;
+var haventSetListener = true, toSendMessage = false, initialize = true;
 
 function containerOffset(e) {
         let x = e.currentTarget.offsetLeft;
@@ -47,22 +54,149 @@ function containerOffset(e) {
 class WebLokus extends React.Component {
         constructor(props) {
                 super(props);
-                this.board = new Board();
+                // board
+                this.square = [];
+                for (let y = 0; y < 14; y++) {
+                        this.square[y] = [];
+                        for (let x = 0; x < 14; x++)
+                                this.square[y][x] = 0;
+                }
+                this.square[0][0] = VIOLET_EDGE;
+                this.square[13][13] = ORANGE_EDGE;
+                this.history = [];
+                this.used = new Array(21 * 2);
+
+                //                this.board = new Board();
                 this.drag = this.drag.bind(this);
                 this.click = this.click.bind(this);
                 this.dblclick = this.dblclick.bind(this);
                 this.state = {
                         playerId: 0, // 0,1
-                        ownScore: 0,
-                        opponentScore: 0,
-                        boardInfo: this.board
+                        ownScore: undefined,
+                        opponentScore: undefined,
+                        boardInfo: this.square,
+                        blockUsed: this.used,
+                        history: this.history,
+                        receiveMsg: false,
+                        test: ""
+                        //                        currentBoard: this.board
                 }
         }
+        // board method 
+        inBounds = (x, y) => { return (x >= 0 && y >= 0 && x < 14 && y < 14); }
+        turn = () => { return this.history.length; }
+        player = () => { return 0; }
+        colorAt = (x, y) => {
+                if (this.state.boardInfo[y][x] & VIOLET_BLOCK) {
+                        return 'violet';
+                }
+                if (this.state.boardInfo[y][x] & ORANGE_BLOCK) {
+                        return 'orange';
+                }
+                return null;
+        }
+        isValidMove = (move) => {
+                console.log(`move.blockId() ${move.blockId()}`) ;
+                if (move.isPass()) {
+                        return true;
+                }
+                console.log(`this.state.blockUsed: ${this.state.blockUsed}`) ;
+                console.log('sssss') ;
+                if (this.state.blockUsed[move.blockId() + this.player() * 21]) {
+                        return false;
+                }
+                console.log('ttttt') ;
+                let coords = move.coords();
+                console.log(`coords: ${coords}`) ;
+                if (!this.isMovable(coords)) {
+                        return false;
+                }
+                for (let i = 0; i < coords.length; i++) {
+                        if (this.state.boardInfo[coords[i].y][coords[i].x] &
+                                [VIOLET_EDGE, ORANGE_EDGE][this.player()]) {
+                                return true;
+                        }
+                }
+                return false;
+        }
+        doMove = (move) => {
+                if (move.isPass()) {
+                        this.state.history.push(move);
+                        return;
+                }
+                let coords = move.coords();
+                console.log(coords);
+                let block = [VIOLET_BLOCK, ORANGE_BLOCK][this.player()];
+                let side_bit = [VIOLET_SIDE, ORANGE_SIDE][this.player()];
+                let edge_bit = [VIOLET_EDGE, ORANGE_EDGE][this.player()];
+                for (let i = 0; i < coords.length; i++) {
+                        let { x, y } = coords[i];
+                        this.state.boardInfo[y][x] |= block;
+                        if (this.inBounds(x - 1, y))
+                                this.state.boardInfo[y][x - 1] |= side_bit;
+                        if (this.inBounds(x, y - 1))
+                                this.state.boardInfo[y - 1][x] |= side_bit;
+                        if (this.inBounds(x + 1, y))
+                                this.state.boardInfo[y][x + 1] |= side_bit;
+                        if (this.inBounds(x, y + 1))
+                                this.state.boardInfo[y + 1][x] |= side_bit;
+                        if (this.inBounds(x - 1, y - 1))
+                                this.state.boardInfo[y - 1][x - 1] |= edge_bit;
+                        if (this.inBounds(x + 1, y - 1))
+                                this.state.boardInfo[y - 1][x + 1] |= edge_bit;
+                        if (this.inBounds(x - 1, y + 1))
+                                this.state.boardInfo[y + 1][x - 1] |= edge_bit;
+                        if (this.inBounds(x + 1, y + 1))
+                                this.state.boardInfo[y + 1][x + 1] |= edge_bit;
+                }
+                this.state.blockUsed[move.blockId() + this.player() * 21] = true;
+                this.state.history.push(move);
+        }
+        doPass = () => { this.state.history.push(PASS); }
+        score = (player) => {
+                let score = 0;
+                for (let i = 0; i < 21; i++) {
+                        if (this.state.blockUsed[i + player * 21])
+                                score += puzzleSet[i].size;
+                }
+                return score;
+        }
+        isMovable = (coords) => {
+                let mask = (VIOLET_BLOCK | ORANGE_BLOCK) |
+                        [VIOLET_SIDE, ORANGE_SIDE][this.player()];
+                for (let i = 0; i < coords.length; i++) {
+                        let { x, y } = coords[i];
+                        //                        console.log(`this.square[y][x] & mask : ${ this.square[y][x] & mask}`) ;
+                        if (x < 0 || x >= 14 || y < 0 || y >= 14 || this.state.boardInfo[y][x] & mask)
+                                return false;
+                }
+                return true;
+        }
+
+        isUsed = (player, blockId) => {
+                return this.state.blockUsed[blockId + player * 21];
+        }
+        canMove = () => {
+                for (let p in pieceSet) {
+                        let id = pieceSet[p].id;
+                        if (this.state.blockUsed[(id >> 3) + this.player() * 21])
+                                continue;
+                        for (let y = 0; y < 14; y++) {
+                                for (let x = 0; x < 14; x++) {
+                                        if (this.isValidMove(new Move(x, y, id)))
+                                                return true;
+                                }
+                        }
+                }
+                return false;
+        }
+        getPath = () => { return this.state.history.join('/'); }
+        //
 
         update() {
                 for (let y = 0; y < 14; y++) {
                         for (let x = 0; x < 14; x++) {
-                                let col = this.state.boardInfo.colorAt(x, y);
+                                let col = this.colorAt(x, y);
                                 if (!col) continue;
                                 let id = 'board_' + x.toString(16) + y.toString(16);
                                 let cell = document.getElementById(id);
@@ -72,23 +206,32 @@ class WebLokus extends React.Component {
                         }
                 }
 
-                let currentScore = this.state.boardInfo.score(0);
-                let opponentCurrentScore = this.state.boardInfo.score(1);
+                let currentScore = this.score(0);
+                let opponentCurrentScore = this.score(1);
                 if (currentScore + opponentCurrentScore !== 0) {
-                        console.log('hi');
-                        this.setState({
+                        this.setState((prevState) => ({
                                 ownScore: currentScore,
                                 opponentScore: opponentCurrentScore,
-                                boardInfo: this.state.boardInfo
-                        });
+                                boardInfo: this.square,
+                                blockUsed: this.used,
+                                history: this.history
+                        }), ()=> {
+                                        var { roomToSendMsg } = require('./PlayGround');
+                                        console.log(`send boardInfo : ${this.state.boardInfo} ${this.state.blockUsed}`);
+                                        sendMessageToServer(roomToSendMsg, this.state.boardInfo, this.state.blockUsed, this.state.history);
+                                }
+                        );
                 }
+
+                //                console.log(`currentScore: ${this.board.score(0)} opponentCurrentScore: ${this.board.score(1)}`);
         }
 
         updateBoardColor() {
                 console.log('updtae Board Color');
+//                console.log(`this.state.boardInfo: ${this.state.boardInfo.square}  and ${this.state.boardInfo.colorAt(0, 0)}`);
                 for (let y = 0; y < 14; y++) {
                         for (let x = 0; x < 14; x++) {
-                                let col = this.state.boardInfo.colorAt(x, y);
+                                let col = this.colorAt(x, y);
                                 if (!col) continue;
                                 let id = 'board_' + x.toString(16) + y.toString(16);
                                 let cell = document.getElementById(id);
@@ -98,27 +241,28 @@ class WebLokus extends React.Component {
                         }
                 }
         }
+
         onPlayerMove(move) {
-                this.state.boardInfo.doMove(move);
+                this.doMove(move);
                 this.update();
-                if (!this.state.boardInfo.canMove()) {
-                        console.log('inside the onplayermove if') ;
+                if (!this.canMove()) {
+                        console.log('inside the onplayermove if');
                         this.gameEnd();
                 }
-                
+
         }
 
         gameEnd() {
-                if (this.state.ownScore > this.state.opponentScore){
-                        alert('You '+this.state.ownScore + ' and ' + this.state.opponentScore) ;
+                if (this.state.ownScore > this.state.opponentScore) {
+                        alert('You ' + this.state.ownScore + ' and ' + this.state.opponentScore);
                 }
-                else if (this.this.state.ownScore < this.state.opponentScore){
-                        alert('You '+this.this.state.ownScore + ' and ' + this.state.opponentScore) ;
+                else if (this.this.state.ownScore < this.state.opponentScore) {
+                        alert('You ' + this.this.state.ownScore + ' and ' + this.state.opponentScore);
                 }
-                else{
-                        alert('You '+this.state.ownScore + ' and ' + this.state.opponentScore) ;
+                else {
+                        alert('You ' + this.state.ownScore + ' and ' + this.state.opponentScore);
                 }
-                        
+
         }
 
         rotate(elem, dir, x, y) {
@@ -177,7 +321,7 @@ class WebLokus extends React.Component {
                 y -= parseFloat(boardStyle.padding) + parseFloat(boardStyle.marginTop);
                 x = Math.floor(x / 40);
                 y = Math.floor(y / 40);
-                if (this.state.boardInfo.inBounds(x, y)) return { x, y };
+                if (this.inBounds(x, y)) return { x, y };
                 else return null;
         }
 
@@ -208,8 +352,7 @@ class WebLokus extends React.Component {
                         let y = clientY - deltaY; //elem.offsetTop
                         let bpos = this.toBoardPosition(clientX, clientY);
                         let pieceId = elemId << 3 | elem.getAttribute('data-direction');
-
-                        if (bpos && this.state.boardInfo.isValidMove(new Move(bpos.x, bpos.y, pieceId))) {
+                        if (bpos && this.isValidMove(new Move(bpos.x, bpos.y, pieceId))) {
                                 let epos = this.fromBoardPosition(bpos);
                                 elem.style.left = x + 'px';
                                 elem.style.top = y + 'px';
@@ -229,8 +372,8 @@ class WebLokus extends React.Component {
                         let bpos = this.toBoardPosition(clientX, clientY);
                         if (bpos) {
                                 let move = new Move(bpos.x, bpos.y, elemId << 3 | elem.getAttribute('data-direction'));
-                                console.log(`this.board.isValidMove(move): ${this.state.boardInfo.isValidMove(move)}`);
-                                if (this.state.boardInfo.isValidMove(move)) {
+                                console.log(`this.board.isValidMove(move): ${this.isValidMove(move)}`);
+                                if (this.isValidMove(move)) {
                                         console.log('put on');
                                         elem.style.visibility = 'hidden';
                                         this.onPlayerMove(move);
@@ -266,8 +409,9 @@ class WebLokus extends React.Component {
         //**** it's for testing    it's up to you to delete it or not */
         test = () => {
                 this.setState({
-                        boardInfo: "Miao"
+                        test: this.state.boardInfo
                 })
+                toSendMessage = true;
         }
 
 
@@ -279,35 +423,30 @@ class WebLokus extends React.Component {
                 drawback: the room will be required everytime.
                 */
                 var { roomToSendMsg } = require('./PlayGround');
-
-                console.log('1');
-                //only set listener once 
-                /*
-                if (haventSetListener) {
-                        haventSetListener = false;
+                if (initialize) {
                         listenMessageFromServer(roomToSendMsg, this);
                         console.log("client listen to message from server!");
-                } else {
-                        console.log('ready to send message to server') ;
-                        if (this.state.boardInfo !== undefined) {
-                                console.log('send boardInfo to server');
-                                console.log(`send boardInfo : ${this.state.boardInfo.square}`);
-                                sendMessageToServer(roomToSendMsg, this.state.boardInfo);
-                        }
+                        initialize = false;
+                }
+                /*
+                else if (toSendMessage) {
+                        console.log(`send boardInfo : ${this.state.boardInfo}`);
+                        toSendMessage = false;
+                        sendMessageToServer(roomToSendMsg, this.state.boardInfo);
                 }
                 */
-                
-
-                /** 
+                //console.log(this.state.test) ;
+                /**
                      *
                 if you wanna send more data you should pack it in a bigger object then parse it yourself,
                 you send what object to server you'll get the same one (by listenMessageFromServer setState)
                      *
                 */
                 /// second row is for testing, if you dont wanna test  delete it 
-                console.log(`this.state.boardInfo.square: ${this.state.boardInfo.square}`);
+//                console.log(`this.boardInfo: ${this.state.boardInfo.square}`);
+                console.log(`in the render this.state.boardInfo: ${this.state.boardInfo}`);
+                //                console.log(`this.boardInfo: ${this.state.boardInfo.player()}`) ;
                 this.updateBoardColor();
-
                 return (
                         <Container>
                                 <Row>
@@ -329,3 +468,5 @@ class WebLokus extends React.Component {
 
 export default WebLokus;
 
+// update -> return  所以沒改變 
+// puzzle 也要改變

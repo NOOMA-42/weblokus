@@ -35,6 +35,7 @@ export class Board {
                         }
                 }
         }
+        /*
         inBounds(x, y) { return (x >= 0 && y >= 0 && x < 14 && y < 14); }
         turn() { return this.history.length; }
         player() { return 0; }
@@ -142,4 +143,113 @@ export class Board {
                 return false;
         }
         getPath() { return this.history.join('/'); }
+        */
+        inBounds = (x,y) => { return (x >= 0 && y >= 0 && x < 14 && y < 14); }
+        turn = () => { return this.history.length; }
+        player = () => { return 0 ;}
+        colorAt = (x, y) => {
+                if (this.square[y][x] & VIOLET_BLOCK){
+                        return 'violet';
+                }
+                if (this.square[y][x] & ORANGE_BLOCK){
+                        return 'orange';
+                }
+                return null;
+        }
+        isValidMove = (move) => {
+                if (move.isPass()){
+//                        console.log('isValidMove 1') ;
+                        return true;
+                }
+                if (this.used[move.blockId() + this.player() * 21]){
+//                        console.log('isValidMove 2') ;
+                        return false;
+                }
+                let coords = move.coords();
+                if (!this._isMovable(coords)){
+//                        console.log('isValidMove 3') ;
+                        return false;
+                }
+                for (let i = 0; i < coords.length; i++) {
+                        if (this.square[coords[i].y][coords[i].x] &
+                                [VIOLET_EDGE, ORANGE_EDGE][this.player()]){
+//                                console.log('isValidMove 4') ;
+                                return true;
+                        }
+                }
+//                console.log('isValidMove 4') ;
+                return false;
+        }
+        doMove = (move) => {
+                if (move.isPass()) {
+                        this.history.push(move);
+                        return;
+                }
+                let coords = move.coords();
+                console.log(coords);
+                let block = [VIOLET_BLOCK, ORANGE_BLOCK][this.player()];
+                let side_bit = [VIOLET_SIDE, ORANGE_SIDE][this.player()];
+                let edge_bit = [VIOLET_EDGE, ORANGE_EDGE][this.player()];
+                for (let i = 0; i < coords.length; i++) {
+                        let { x, y } = coords[i];
+                        this.square[y][x] |= block;
+                        if (this.inBounds(x - 1, y))
+                                this.square[y][x - 1] |= side_bit;
+                        if (this.inBounds(x, y - 1))
+                                this.square[y - 1][x] |= side_bit;
+                        if (this.inBounds(x + 1, y))
+                                this.square[y][x + 1] |= side_bit;
+                        if (this.inBounds(x, y + 1))
+                                this.square[y + 1][x] |= side_bit;
+                        if (this.inBounds(x - 1, y - 1))
+                                this.square[y - 1][x - 1] |= edge_bit;
+                        if (this.inBounds(x + 1, y - 1))
+                                this.square[y - 1][x + 1] |= edge_bit;
+                        if (this.inBounds(x - 1, y + 1))
+                                this.square[y + 1][x - 1] |= edge_bit;
+                        if (this.inBounds(x + 1, y + 1))
+                                this.square[y + 1][x + 1] |= edge_bit;
+                }
+                this.used[move.blockId() + this.player() * 21] = true;
+                this.history.push(move);
+        }
+        doPass = () => { this.history.push(PASS); }
+        score = (player) => {
+                let score = 0;
+                for (let i = 0; i < 21; i++) {
+                        if (this.used[i + player * 21])
+                                score += puzzleSet[i].size;
+                }
+                return score;
+        }
+        _isMovable = (coords) => {
+                let mask = (VIOLET_BLOCK | ORANGE_BLOCK) |
+                        [VIOLET_SIDE, ORANGE_SIDE][this.player()];
+                for (let i = 0; i < coords.length; i++) {
+                        let { x, y } = coords[i];
+//                        console.log(`this.square[y][x] & mask : ${ this.square[y][x] & mask}`) ;
+                        if (x < 0 || x >= 14 || y < 0 || y >= 14 || this.square[y][x] & mask)
+                                return false;
+                }
+                return true;
+        }
+
+        isUsed = (player, blockId) => {
+                return this.used[blockId + player * 21];
+        }
+        canMove = () => {
+                for (let p in pieceSet) {
+                        let id = pieceSet[p].id;
+                        if (this.used[(id >> 3) + this.player() * 21])
+                                continue;
+                        for (let y = 0; y < 14; y++) {
+                                for (let x = 0; x < 14; x++) {
+                                        if (this.isValidMove(new Move(x, y, id)))
+                                                return true;
+                                }
+                        }
+                }
+                return false;
+        }
+        getPath = () => { return this.history.join('/'); }
 }
