@@ -14,17 +14,27 @@ app.use(cors());
 const server = http.createServer(app);
 const gameServer = new Server({ server });
 
+
+//backend related const
 const Rank = require("../models/Rank")
 const mongoose = require("mongoose")
-const playboradRoutes = express.Router()
+const playboardRoutes = express.Router()
+const bodyParser = require('body-parser');
 
-
+// database config
 mongoose.connect('mongodb://127.0.0.1:27017/ranking', { useNewUrlParser: true });
 const connection = mongoose.connection;
+connection.on('error', console.error.bind(console, 'connection error:'));
 connection.once('open', function() {
     console.log("MongoDB database connection established successfully");
 })
-app.use("/ranks",playboradRoutes)
+
+// route config
+app.use(bodyParser.json()); // support json encoded bodies
+app.use(bodyParser.urlencoded({ extended: false })); // support encoded bodies
+app.use("/ranks", playboardRoutes)
+
+
 /*
 app.post('/playborad', (req, res) => {
     console.log('Inside the homepage callback')
@@ -48,12 +58,14 @@ app.post('/playborad',(req,res)=>{
 playboradRoutes.get('/',function(req,res,next){
     res.send("respond with rescorce")
 })*/
-playboradRoutes.route('/playborad').get(function(req,res){
+playboardRoutes.route('/playboard').get(function(req,res){
     res.send("route get")
 })
 
-playboradRoutes.route('/playborad').post(function(req, res) {
+
+playboardRoutes.route('/playboard').post(function(req, res) {
     let rank = new Rank(req.body);
+    console.log(req.body)
     rank.save()
         .then(post => {
             res.status(200).json({'rank': 'rank added successfully'});
@@ -75,6 +87,7 @@ app.use(express.static(__dirname + "../../../frontend/dist/index.html"));
 
 // register @colyseus/social routes
 //app.use("/", socialRoutes);
+
 
 // register colyseus monitor AFTER registering your room handlers
 app.use("/colyseus", monitor(gameServer));

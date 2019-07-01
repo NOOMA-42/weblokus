@@ -8,8 +8,9 @@ import PlayBoard from './PlayBoard';
 import {CopyToClipboard} from 'react-copy-to-clipboard';
 import { object } from 'prop-types';
 
-var roomToSendMsg;
+var roomObj;
 var ID;
+var clientID;
 
 class PlayGround extends Component{
   constructor() {
@@ -21,6 +22,7 @@ class PlayGround extends Component{
 
     // once entering lobby (this route) the new client will be created
     this.client = new Client(endpoint);
+    clientID = this.client.id;
     this.state = {
       roomID: undefined,
       waitingForUser: true,
@@ -114,7 +116,7 @@ class PlayGround extends Component{
     });
 
     // for playboard to access
-    roomToSendMsg = this.room;
+    roomObj = this.room;
   }
 
   // Those who join game by searching ID will go through this
@@ -147,7 +149,7 @@ class PlayGround extends Component{
       }
     });
 
-    roomToSendMsg = this.room;
+    roomObj = this.room;
   }
 
   
@@ -266,7 +268,8 @@ export default PlayGround;
 
 
 // for board to send message
-export var roomToSendMsg = roomToSendMsg;
+export var roomObj = roomObj;
+export var clientID = clientID;
 export var ID = ID;
 // explained in PlayBoard
 

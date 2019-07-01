@@ -17,6 +17,10 @@ import { Board } from '../methods/board';
 
 //image
 import capoo from '../assets/image/hi.jpeg';
+
+//send data to db
+import axios from 'axios';
+
 var blocking = false ;
 const SCALE = 30;
 const VIOLET_MASK = 0x07;
@@ -48,7 +52,7 @@ usage:
 */
 import { sendMessageToServer, listenMessageFromServer } from './PlayGround';
 var haventSetListener = true, toSendMessage = false, initialize = true;
-var playerID;
+var playerID, cID;
 
 function containerOffset(e) {
         let x = e.currentTarget.offsetLeft;
@@ -99,6 +103,7 @@ class WebLokus extends React.Component {
                 }
                 return null;
         }
+
         isValidMove = (move) => {
                 if (move.isPass()) {
                         return true;
@@ -216,9 +221,9 @@ class WebLokus extends React.Component {
                                 blockUsed: this.state.blockUsed,
                                 history: this.state.history
                         }), () => {
-                                var { roomToSendMsg } = require('./PlayGround');
+                                var { roomObj } = require('./PlayGround');
 //                                console.log(`send boardInfo : ${this.state.boardInfo} ${this.state.blockUsed}`);
-                                sendMessageToServer(roomToSendMsg, 
+                                sendMessageToServer(roomObj, 
                                         this.state.boardInfo, this.state.blockUsed, this.state.history
                                 );
                         }
@@ -256,16 +261,23 @@ class WebLokus extends React.Component {
 
         gameEnd() {
                 let elem = document.getElementById("message");
+                var scoreData = {
+                        'rank_user': cID,
+                        'rank_score': this.state.ownScore
+                }
                 if (this.state.ownScore > this.state.opponentScore) {
                         elem.innerHTML = ('Your: ' + this.state.ownScore + ' Opponent:  ' + this.state.opponentScore + ' so you win');
+
                 }
                 else if (this.state.ownScore < this.state.opponentScore) {
                         elem.innerHTML = ('Your: ' + this.state.ownScore + ' Opponent:  ' + this.state.opponentScore + ' so you lose');
+
                 }
                 else {
                         elem.innerHTML = ('Your: ' + this.state.ownScore + ' Opponent:  ' + this.state.opponentScore + ' so tie');
-                }
 
+                }
+                sendDataToDB(scoreData);
         }
 
         rotate(elem, dir, x, y) {
@@ -425,11 +437,11 @@ class WebLokus extends React.Component {
                 2. right after player update local state: boardInfo
                 drawback: the room will be required everytime.
                 */
-                var { roomToSendMsg, ID } = require('./PlayGround');
+                var { roomObj, ID, clientID } = require('./PlayGround');
+                cID = clientID;
                 playerID = ID;
                 if (initialize) {
-
-                        listenMessageFromServer(roomToSendMsg, this);
+                        listenMessageFromServer(roomObj, this);
                         console.log("client listen to message from server!");
                         initialize = false;
                 }
@@ -491,3 +503,9 @@ export default WebLokus;
 
 // update -> return  所以沒改變 
 // puzzle 也要改變
+
+
+function sendDataToDB(data) {
+        axios.post('http://localhost:2567/ranks/playboard', data)
+                .then(res => console.log(res.data))
+}
