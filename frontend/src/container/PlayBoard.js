@@ -55,7 +55,17 @@ function containerOffset(e) {
 class WebLokus extends React.Component {
         constructor(props) {
                 super(props);
-                this.board = new Board(1);
+                this.square = [];
+                for (let y = 0; y < 14; y++) {
+                        this.square[y] = [];
+                        for (let x = 0; x < 14; x++)
+                                this.square[y][x] = 0;
+                }
+                this.square[0][0] = VIOLET_EDGE;
+                this.square[13][13] = ORANGE_EDGE;
+                this.history = [];
+                this.used = new Array(21 * 2);
+                this.board = new Board();
                 this.drag = this.drag.bind(this);
                 this.click = this.click.bind(this);
                 this.dblclick = this.dblclick.bind(this);
@@ -76,6 +86,7 @@ class WebLokus extends React.Component {
         turn = () => { return this.history.length; }
         player = () => { return 0; }
         colorAt = (x, y) => {
+                console.log('123456') ;
                 if (this.state.boardInfo[y][x] & VIOLET_BLOCK) {
                         return 'violet';
                 }
@@ -85,18 +96,13 @@ class WebLokus extends React.Component {
                 return null;
         }
         isValidMove = (move) => {
-                console.log(`move.blockId() ${move.blockId()}`);
                 if (move.isPass()) {
                         return true;
                 }
-                console.log(`this.state.blockUsed: ${this.state.blockUsed}`);
-                console.log('sssss');
                 if (this.state.blockUsed[move.blockId() + this.player() * 21]) {
                         return false;
                 }
-                console.log('ttttt');
                 let coords = move.coords();
-                console.log(`coords: ${coords}`);
                 if (!this.isMovable(coords)) {
                         return false;
                 }
@@ -194,8 +200,8 @@ class WebLokus extends React.Component {
                         }
                 }
 
-                let currentScore = this.state.boardInfo.score(this.state.playerId);
-                let opponentCurrentScore = this.state.boardInfo.score(this.state.playerId === 0 ? 1 : 0);
+                let currentScore = this.score(this.state.playerId);
+                let opponentCurrentScore = this.score(this.state.playerId === 0 ? 1 : 0);
                 if (currentScore + opponentCurrentScore !== 0) {
                         this.setState((prevState) => ({
                                 ownScore: currentScore,
@@ -233,7 +239,7 @@ class WebLokus extends React.Component {
         onPlayerMove(move) {
                 this.doMove(move);
                 this.update();
-                if (!this.state.boardInfo.canMove()) {
+                if (!this.canMove()) {//
                         console.log('inside the onplayermove if');
                         this.gameEnd();
                 }
