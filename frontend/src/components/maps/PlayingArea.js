@@ -22,6 +22,7 @@ class BoardSquare extends React.Component {
                         'block0': (this.props.color === 'violet')? true:false,
                         'block1': (this.props.color === 'orange')? true:false
                 });
+                
                 return <div className={classes} id={this.props.id}></div>
         }
         render() {
@@ -29,7 +30,7 @@ class BoardSquare extends React.Component {
         }
 }
 class PlayingArea extends React.Component {
-
+        
         renderBoardSquares() {
                 const range = n => Array.from(new Array(n), (x, i) => i);
                 const matrixProduct = (x, y) => {
@@ -56,6 +57,7 @@ class PlayingArea extends React.Component {
 
         render() {
 //                console.log(`in playingarea: ${this.props.boardInf.square}`) ;
+                
                 return (
                         <div id="board">
                                 <div className='board-border'>
