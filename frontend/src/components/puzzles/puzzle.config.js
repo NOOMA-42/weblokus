@@ -235,13 +235,13 @@ const puzzlePositionConfig = [
         [2,5],
         [3,5],
 
-        [1,6.8],
-        [2,6],
+        [1.3,1.3],
+        [3.5,4],
         [3,6],
 
-        [1.4,7],
-        [2,7],
-        [3,7],
+        [1.4,5.8],
+        [2,4],
+        [2.5,6],
 ] ;
 
 export { pieceSet, puzzleSet, puzzlePositionConfig };
