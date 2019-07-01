@@ -16,7 +16,7 @@ class Menu extends React.Component{
         }
         return (
         <>
-            <div style={{margin:'30px 20%',padding:"10%"}}>
+            
             <h1>Weblokus</h1>
             <AwesomeButtonProgress
                 size={'large'}
@@ -53,8 +53,7 @@ class Menu extends React.Component{
             >
                 Ranking
             </AwesomeButtonProgress>
-            </div>
-           
+            
     
            
         </>  

@@ -5,25 +5,39 @@ import axios from 'axios';
 export default class Example extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {
-            posts:[]
-        };
+        
+       
+
     }
     
     componentDidMount() {
-        
         axios.get('http://localhost:2567/ranks/')
-            .then(response => {
-                this.setState({ 
-                    scores: response.data});
-            })
-            .catch(function (error){
-                console.log(error);
-            })
+        .then(response => {
+            const data = response.data
+            this.setState(
+                {scores: data}
+                );
+            state = {
+                score:data
+            }
+        })
+        .catch(function (error){
+            console.log(error);
+        })
+        
+        
+        
     }
 
   render() {
-    console.log(this.state.scores)
+    console.log(this.state)
+    const scores =  this.state.scores.map((score,id)=>{
+        <tr>
+            <th scope="row">{id}</th>
+            <td>{score.rank_user}</td>
+            <td>{score.rank_score}</td>
+          </tr>
+    })
     return (
     <div style={{padding:"10% 20%"}}>
         <h1 style={{textAlign:"center"}}>Ranking</h1>
