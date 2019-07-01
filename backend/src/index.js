@@ -42,6 +42,7 @@ could have many rooms and each room follows handler playGround's
 pattern.
 */
 gameServer.register('game_room_handler', playGround);
+app.use(express.static(__dirname + "../../../frontend/dist/index.html"));
 
 // register @colyseus/social routes
 //app.use("/", socialRoutes);
