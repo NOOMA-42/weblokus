@@ -7,7 +7,9 @@ export default class Example extends React.Component {
         super(props);
         
        
-
+        this.state={
+            scores:[]
+        }
     }
     
     componentDidMount() {
@@ -15,29 +17,27 @@ export default class Example extends React.Component {
         .then(response => {
             const data = response.data
             this.setState(
-                {scores: data}
-                );
-            state = {
-                score:data
-            }
+                {scores: response.data}
+            );
         })
         .catch(function (error){
             console.log(error);
         })
         
-        
-        
     }
 
   render() {
     console.log(this.state)
-    const scores =  this.state.scores.map((score,id)=>{
-        <tr>
+    const scores =  this.state.scores.map((score,id)=>(
+<tr>
             <th scope="row">{id}</th>
             <td>{score.rank_user}</td>
             <td>{score.rank_score}</td>
-          </tr>
-    })
+        </tr>
+    )
+        
+    )
+    console.log(scores)
     return (
     <div style={{padding:"10% 20%"}}>
         <h1 style={{textAlign:"center"}}>Ranking</h1>
@@ -45,30 +45,12 @@ export default class Example extends React.Component {
         <thead>
           <tr>
             <th>#</th>
-            <th>First Name</th>
-            <th>Last Name</th>
             <th>Username</th>
+            <th>score</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <th scope="row">1</th>
-            <td>Mark</td>
-            <td>Otto</td>
-            <td>@mdo</td>
-          </tr>
-          <tr>
-            <th scope="row">2</th>
-            <td>Jacob</td>
-            <td>Thornton</td>
-            <td>@fat</td>
-          </tr>
-          <tr>
-            <th scope="row">3</th>
-            <td>Larry</td>
-            <td>the Bird</td>
-            <td>@twitter</td>
-          </tr>
+          {scores}
         </tbody>
       </Table>
 
