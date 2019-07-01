@@ -38,7 +38,7 @@ class playGround extends Room{
         }
     }
 
-    
+
 
     requestJoin (options, isNewRoom) {
         return (options.create)
