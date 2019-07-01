@@ -1,11 +1,13 @@
 import React, { Component }from 'react'
 import { Client } from 'colyseus.js'
-import { Button, Form, FormGroup, Input } from 'reactstrap'
+import { Jumbotron,Button, Form, FormGroup, Input } from 'reactstrap'
 import { DataChange } from '@colyseus/schema'
+import { AwesomeButton,AwesomeButtonProgress } from "react-awesome-button";
+import AwesomeButtonStyles from "react-awesome-button/src/styles/styles.scss";
 import PlayBoard from './PlayBoard';
+import {CopyToClipboard} from 'react-copy-to-clipboard';
 
-var roomToSendMs = true, toSendMessage = false, toReceiveMessage = false;
-
+var roomToSendMsg;
 
 class PlayGround extends Component{
   constructor() {
@@ -30,6 +32,7 @@ class PlayGround extends Component{
   */
   // Those who join game by creating room will go through this
   create = () => {
+    console.log("createee")
     this.room = this.client.join('game_room_handler', { create: true });
     
     /* to be used: same as state.onChange
@@ -162,36 +165,69 @@ class PlayGround extends Component{
     //create new game or join by id or return if in game
     return (
       <>
-        <h1>Play Ground</h1>
-        {    
-          this.state.createRoom ? (
-          <>
-          <h2>your room ID: {this.state.roomID} send it to your friends, if you have</h2>
-          <Button>Return Back Game</Button>
-          </>
-          ):(<>
-          <h2>2 entries into game</h2>
-          <Button onClick={this.create}>New Room</Button>
-          <Form onSubmit={this.submitHandler}>
-            <FormGroup row>
-              <Input
-                type="text"
-                name="roomID"
-                id="roomID"
-                value={this.state.submit}
-                placeholder="enter room ID"
-                onChange={e => this.setState({ submit: e.target.value })}
-              />
-              <Button type="submit" color="primary">
-                Let's go!
-            </Button>
-            </FormGroup>
-          </Form>
-          </>)
-        }
-        <h1>testing functions below</h1>
-        <Button onClick={this.available}>available</Button>
-        <Button onClick={this.join} >join</Button>
+      
+      <div style={{margin:'20px 20%',padding:"10%",textAlign:"center"}}>
+       
+        <h1>WebLoKus</h1>
+        <div className="playground">
+              
+        <Form onSubmit={this.submitHandler} style={{padding:'3%'}}>
+          <FormGroup >
+            <div>
+            <Input
+              type="text"
+              name="roomID"
+              id="roomID"
+              value={this.state.submit}
+              placeholder="enter room ID"
+              onChange={e => this.setState({ submit: e.target.value })}
+            />
+            <AwesomeButton type="submit" style={{color:"orange"}}>
+            Let's go!
+            </AwesomeButton>
+
+            </div>
+            
+              
+             
+            
+          </FormGroup>
+        </Form>
+        </div>
+
+        <div className ="createRoom">
+          <small style={{padding:"2% 3%"}}>Don't have a room? <br/>click here to get a new room ID</small>
+        <br/>
+        <AwesomeButton onPress={this.create} style={{margin:"12px"}} type="primary">New Room</AwesomeButton>
+        {this.state.createRoom?
+        <div className="playground">
+          <Jumbotron style={{padding:"3px"}}>
+          <small>your room ID:  </small>{this.state.roomID}<br/>
+          <hr/>
+          <small style={{height:"1px"}}>Share with your friends,<br/> well, if you have one...</small>
+          <CopyToClipboard text={this.state.roomID}
+          onCopy={() => this.setState({copied: true})}>
+            
+          <button type="primary" style={{color:"black",height:"40px",padding:"0 4px",alignItems:"right"}}>
+            {this.state.copied?<small>copied</small>:<small>copy</small>}
+          </button>
+        </CopyToClipboard>
+      </Jumbotron>
+          </div>:<div/>}
+        </div>
+
+        <hr/>
+        
+      <small>testing functions below</small>
+      <div>
+        <AwesomeButton onPress={this.available} type="secondary">available</AwesomeButton>
+        <AwesomeButton onPress={this.join} type="secondary">join</AwesomeButton>    
+      </div>
+          
+     
+
+      </div>
+        
       </>
     );
   }
