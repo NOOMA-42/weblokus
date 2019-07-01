@@ -6,8 +6,10 @@ import { AwesomeButton,AwesomeButtonProgress } from "react-awesome-button";
 import AwesomeButtonStyles from "react-awesome-button/src/styles/styles.scss";
 import PlayBoard from './PlayBoard';
 import {CopyToClipboard} from 'react-copy-to-clipboard';
+import { object } from 'prop-types';
 
 var roomToSendMsg;
+var playerID;
 
 class PlayGround extends Component{
   constructor() {
@@ -98,10 +100,16 @@ class PlayGround extends Component{
     })
 
     this.room.onMessage.add((message) => {
-      if (message === "gameCanStart") {
+      if (message[0] === "gameCanStart") {
+        if (Object.keys(message[1]) === this.room.sessionId) {
+          playerID = message[1][Object.keys(message[1])]
+        }
+        else if (Object.keys(message[2]) === this.room.sessionId) {
+          playerID = message[2][Object.keys(message[2])]
+        }
         this.setState((state) => ({
           waitingForUser: false,
-        }));
+        })); 
       }
     });
 
@@ -125,10 +133,16 @@ class PlayGround extends Component{
     })
 
     this.room.onMessage.add((message) => {
-      if (message === "gameCanStart") {
+      if (message[0] === "gameCanStart") {
+        if (Object.keys(message[1]) === this.room.sessionId) {
+          playerID = message[1][Object.keys(message[1])]
+        }
+        else if (Object.keys(message[2]) === this.room.sessionId) {
+          playerID = message[2][Object.keys(message[2])]
+        }
         this.setState((state) => ({
           waitingForUser: false,
-        }));
+        })); 
       }
     });
 
@@ -252,6 +266,7 @@ export default PlayGround;
 
 // for board to send message
 export var roomToSendMsg = roomToSendMsg;
+export var playerID = playerID
 // explained in PlayBoard
 
 // 這邊我不知道要怎麼send這些東東 你再幫我改 如果沒送到會有問題

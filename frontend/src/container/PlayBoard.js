@@ -79,7 +79,7 @@ class WebLokus extends React.Component {
                         history: this.history,
                         receiveMsg: false,
                         test: ""
-                        //                        currentBoard: this.board
+                        //currentBoard: this.board
                 }
                 return true;
         }
@@ -420,7 +420,8 @@ class WebLokus extends React.Component {
                 2. right after player update local state: boardInfo
                 drawback: the room will be required everytime.
                 */
-                var { roomToSendMsg } = require('./PlayGround');
+                var { roomToSendMsg, playerID } = require('./PlayGround');
+                console.log(playerID);
                 if (initialize) {
                         listenMessageFromServer(roomToSendMsg, this);
                         console.log("client listen to message from server!");

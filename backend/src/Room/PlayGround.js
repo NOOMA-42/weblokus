@@ -1,5 +1,5 @@
 import { Room, serialize, FossilDeltaSerializer } from "colyseus";
-import { Schema, type, MapSchema  } from "@colyseus/schema";
+import { Schema, type, MapSchema } from "@colyseus/schema";
 /*
 importing regeneratorRuntime is to use async/await in bundling
 */
@@ -14,6 +14,7 @@ will happen.
 class playGround extends Room{
     constructor(options) {
         super(options);
+        this.playerList = []        
     }
 
     onInit(options) {
@@ -26,13 +27,14 @@ class playGround extends Room{
         console.log("JOINING ROOM");
         this.state.players[client.sessionId] = new Player();
         this.state.players[client.sessionId].connected = true;
+        this.playerList.push(client.sessionId);
         console.log("join " + client.id);
         
         let gameCanStart = this.hasReachedMaxClients();
-        if(gameCanStart){
+        if (gameCanStart) {
             this.state.waitingForUser = false;
             // broadcast a message to all clients
-            this.broadcast("gameCanStart");
+            this.broadcast(["gameCanStart", { [this.playerList[0]]: 0 }, { [this.playerList[1]]: 1 }]);
         }
     }
 
