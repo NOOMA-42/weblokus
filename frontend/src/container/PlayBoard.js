@@ -97,6 +97,7 @@ class WebLokus extends React.Component {
                 return null;
         }
         isValidMove = (move) => {
+                console.log(this.state.blockUsed) ;
                 if (move.isPass()) {
                         return true;
                 }
@@ -207,13 +208,15 @@ class WebLokus extends React.Component {
                         this.setState((prevState) => ({
                                 ownScore: currentScore,
                                 opponentScore: opponentCurrentScore,
-                                boardInfo: this.state.square,
-                                blockUsed: this.state.used,
+                                boardInfo: this.state.boardInfo,
+                                blockUsed: this.state.blockUsed,
                                 history: this.state.history
                         }), () => {
                                 var { roomToSendMsg } = require('./PlayGround');
-                                console.log(`send boardInfo : ${this.state.boardInfo} ${this.state.blockUsed}`);
-                                sendMessageToServer(roomToSendMsg, this.state.boardInfo, this.state.blockUsed, this.state.history);
+//                                console.log(`send boardInfo : ${this.state.boardInfo} ${this.state.blockUsed}`);
+                                sendMessageToServer(roomToSendMsg, 
+                                        this.state.boardInfo, this.state.blockUsed, this.state.history
+                                );
                         }
                         );
                 }
