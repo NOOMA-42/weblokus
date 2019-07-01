@@ -13,7 +13,7 @@ const app = express();
 app.use(cors());
 const server = http.createServer(app);
 const gameServer = new Server({ server });
-
+const playboradRoutes = express.Router()
 const mongoose = require("mongoose")
 mongoose.connect('mongodb://127.0.0.1:27017/ranking', { useNewUrlParser: true });
 const connection = mongoose.connection;
