@@ -199,6 +199,8 @@ class WebLokus extends React.Component {
                                 let id = 'board_' + x.toString(16) + y.toString(16);
                                 let cell = document.getElementById(id);
                                 if (!cell) continue;
+                                if( cell.className.indexOf ('block0') >= 0 || cell.className.indexOf ('block1') >= 0 ) 
+                                        continue ;
                                 let cls = 'block' + playerID;
                                 cell.classList.add(cls);
                         }
@@ -234,6 +236,8 @@ class WebLokus extends React.Component {
                                 let id = 'board_' + x.toString(16) + y.toString(16);
                                 let cell = document.getElementById(id);
                                 if (!cell) continue;
+                                if( cell.className.indexOf ('block0') >= 0 || cell.className.indexOf ('block1') >= 0 ) 
+                                        continue ;
                                 let cls = 'block' + playerID;
                                 cell.classList.add(cls);
                         }

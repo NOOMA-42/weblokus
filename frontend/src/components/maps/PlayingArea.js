@@ -48,7 +48,7 @@ class PlayingArea extends React.Component {
                                                 y={rowIndex}
                                                 id={`board_${index.toString(16)}${rowIndex.toString(16)}`}
                                                 key={`${index}+${rowIndex}`}
-                                                color={colorAt(this.props.boardInf,index,rowIndex) } 
+                                                color={colorAt(this.props.boardInf,index,rowIndex)}
                                         />
                                 );
                         })
