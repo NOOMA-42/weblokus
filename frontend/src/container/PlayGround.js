@@ -101,11 +101,11 @@ class PlayGround extends Component{
 
     this.room.onMessage.add((message) => {
       if (message[0] === "gameCanStart") {
-        if (Object.keys(message[1]) === this.room.sessionId) {
-          playerID = message[1][Object.keys(message[1])]
+        if (Object.keys(message[1])[0] === this.room.sessionId) {
+          playerID = message[1][Object.keys(message[1])[0]]
         }
-        else if (Object.keys(message[2]) === this.room.sessionId) {
-          playerID = message[2][Object.keys(message[2])]
+        else if (Object.keys(message[2])[0] === this.room.sessionId) {
+          playerID = message[2][Object.keys(message[2])[0]]
         }
         this.setState((state) => ({
           waitingForUser: false,
@@ -134,11 +134,12 @@ class PlayGround extends Component{
 
     this.room.onMessage.add((message) => {
       if (message[0] === "gameCanStart") {
-        if (Object.keys(message[1]) === this.room.sessionId) {
-          playerID = message[1][Object.keys(message[1])]
+
+        if (Object.keys(message[1])[0] === this.room.sessionId) {
+          playerID = message[1][Object.keys(message[1])[0]]
         }
-        else if (Object.keys(message[2]) === this.room.sessionId) {
-          playerID = message[2][Object.keys(message[2])]
+        else if (Object.keys(message[2])[0] === this.room.sessionId) {
+          playerID = message[2][Object.keys(message[2])[0]]
         }
         this.setState((state) => ({
           waitingForUser: false,
@@ -266,7 +267,7 @@ export default PlayGround;
 
 // for board to send message
 export var roomToSendMsg = roomToSendMsg;
-export var playerID = playerID
+export var playerID = playerID;
 // explained in PlayBoard
 
 // 這邊我不知道要怎麼send這些東東 你再幫我改 如果沒送到會有問題

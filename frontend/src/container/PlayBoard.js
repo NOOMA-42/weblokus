@@ -103,7 +103,7 @@ class WebLokus extends React.Component {
                 if (move.isPass()) {
                         return true;
                 }
-                if (this.state.blockUsed[move.blockId() + this.state.playerId * 21]) {
+                if (this.state.blockUsed[move.blockId() + playerID * 21]) {
                         return false;
                 }
                 let coords = move.coords();
@@ -112,7 +112,7 @@ class WebLokus extends React.Component {
                 }
                 for (let i = 0; i < coords.length; i++) {
                         if (this.state.boardInfo[coords[i].y][coords[i].x] &
-                                [VIOLET_EDGE, ORANGE_EDGE][this.state.playerId]) {
+                                [VIOLET_EDGE, ORANGE_EDGE][playerID]) {
                                 return true;
                         }
                 }
@@ -125,9 +125,9 @@ class WebLokus extends React.Component {
                 }
                 let coords = move.coords();
                 console.log(coords);
-                let block = [VIOLET_BLOCK, ORANGE_BLOCK][this.state.playerId];
-                let side_bit = [VIOLET_SIDE, ORANGE_SIDE][this.state.playerId];
-                let edge_bit = [VIOLET_EDGE, ORANGE_EDGE][this.state.playerId];
+                let block = [VIOLET_BLOCK, ORANGE_BLOCK][playerID];
+                let side_bit = [VIOLET_SIDE, ORANGE_SIDE][playerID];
+                let edge_bit = [VIOLET_EDGE, ORANGE_EDGE][playerID];
                 for (let i = 0; i < coords.length; i++) {
                         let { x, y } = coords[i];
                         this.state.boardInfo[y][x] |= block;
@@ -148,7 +148,7 @@ class WebLokus extends React.Component {
                         if (this.inBounds(x + 1, y + 1))
                                 this.state.boardInfo[y + 1][x + 1] |= edge_bit;
                 }
-                this.state.blockUsed[move.blockId() + this.state.playerId * 21] = true;
+                this.state.blockUsed[move.blockId() + playerID * 21] = true;
                 this.state.history.push(move);
         }
         score = (player) => {
@@ -161,7 +161,7 @@ class WebLokus extends React.Component {
         }
         isMovable = (coords) => {
                 let mask = (VIOLET_BLOCK | ORANGE_BLOCK) |
-                        [VIOLET_SIDE, ORANGE_SIDE][this.state.playerId];
+                        [VIOLET_SIDE, ORANGE_SIDE][playerID];
                 for (let i = 0; i < coords.length; i++) {
                         let { x, y } = coords[i];
                         //                        console.log(`this.square[y][x] & mask : ${ this.square[y][x] & mask}`) ;
@@ -177,7 +177,7 @@ class WebLokus extends React.Component {
         canMove = () => {
                 for (let p in pieceSet) {
                         let id = pieceSet[p].id;
-                        if (this.state.blockUsed[(id >> 3) + this.state.playerId * 21])
+                        if (this.state.blockUsed[(id >> 3) + playerID * 21])
                                 continue;
                         for (let y = 0; y < 14; y++) {
                                 for (let x = 0; x < 14; x++) {
@@ -199,13 +199,13 @@ class WebLokus extends React.Component {
                                 let id = 'board_' + x.toString(16) + y.toString(16);
                                 let cell = document.getElementById(id);
                                 if (!cell) continue;
-                                let cls = 'block' + this.state.playerId;
+                                let cls = 'block' + playerID;
                                 cell.classList.add(cls);
                         }
                 }
 
-                let currentScore = this.score(this.state.playerId);
-                let opponentCurrentScore = this.score(this.state.playerId === 0 ? 1 : 0);
+                let currentScore = this.score(playerID);
+                let opponentCurrentScore = this.score(playerID === 0 ? 1 : 0);
                 if (currentScore + opponentCurrentScore !== 0) {
                         this.setState((prevState) => ({
                                 ownScore: currentScore,
@@ -234,7 +234,7 @@ class WebLokus extends React.Component {
                                 let id = 'board_' + x.toString(16) + y.toString(16);
                                 let cell = document.getElementById(id);
                                 if (!cell) continue;
-                                let cls = 'block' + this.state.playerId;
+                                let cls = 'block' + playerID;
                                 cell.classList.add(cls);
                         }
                 }
@@ -434,8 +434,7 @@ class WebLokus extends React.Component {
                 you send what object to server you'll get the same one (by listenMessageFromServer setState)
                      *
                 */
-                if( this.turn() !== this.state.playerId ) {
-                        console.log('HH') ;
+                if( this.turn() !== playerID ) {
                         blocking = true ;
                         
                 }
@@ -451,7 +450,7 @@ class WebLokus extends React.Component {
                                         </Col>
                                         <Col xs="3">
                                                 
-                                                <RighSidePuzzleContainer onMouseDown={this.drag} onClick={this.click} onDoubleClick={this.dblclick} playerId={this.state.playerId} />
+                                                <RighSidePuzzleContainer onMouseDown={this.drag} onClick={this.click} onDoubleClick={this.dblclick} playerId={playerID} />
                                                 
                                         </Col>
                                 </Row>
