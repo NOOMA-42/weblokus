@@ -48,6 +48,7 @@ usage:
 */
 import { sendMessageToServer, listenMessageFromServer } from './PlayGround';
 var haventSetListener = true, toSendMessage = false, initialize = true;
+var playerID;
 
 function containerOffset(e) {
         let x = e.currentTarget.offsetLeft;
@@ -421,9 +422,11 @@ class WebLokus extends React.Component {
                 2. right after player update local state: boardInfo
                 drawback: the room will be required everytime.
                 */
-                var { roomToSendMsg, playerID } = require('./PlayGround');
-                console.log(playerID);
+                var { roomToSendMsg, ID } = require('./PlayGround');
+                playerID = ID;
+                console.log(ID)
                 if (initialize) {
+
                         listenMessageFromServer(roomToSendMsg, this);
                         console.log("client listen to message from server!");
                         initialize = false;
@@ -437,6 +440,8 @@ class WebLokus extends React.Component {
                 if( this.turn() !== playerID ) {
                         blocking = true ;
                         
+                } else {
+                        blocking = false;
                 }
                 /// second row is for testing, if you dont wanna test  delete it 
                 this.updateBoardColor();
