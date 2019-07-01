@@ -38,7 +38,6 @@ playboradRoutes.route('/').get(function(req,res){
         else{
             res.json(ranks)
         }
-        res.send("heeei")
     }).catch(err=>{
         res.status(400).send("cannot find nothing")
     })
