@@ -256,18 +256,24 @@ export var roomToSendMsg = roomToSendMsg;
 
 // 這邊我不知道要怎麼send這些東東 你再幫我改 如果沒送到會有問題
 export function sendMessageToServer(room, boardInfo, blockUsed, history) {
-  console.log(`sendMessageToServer: ${boardInfo} ${blockUsed} ${history}`) ;
-  room.send(boardInfo);
+  console.log(`sendMessageToServer: ${boardInfo} ${blockUsed} ${history}`);
+  var packageInfo = { 
+    boardInfo: boardInfo,
+    blockUsed: blockUsed,
+    history: history
+  }
+  room.send(packageInfo);
   console.log("send message to server");
 }
 
 export function listenMessageFromServer(room, boardObjectToSetState) {
-  room.onMessage.add( (newBoardInfo, newBoardUsed, newBoardHistory) => {
+  room.onMessage.add((packageInfo) => {
+    console.log(packageInfo)
     boardObjectToSetState.setState(state => (
       {
-        boardInfo: newBoardInfo,
-        blockUsed: newBoardUsed,
-        history: newBoardHistory
+        blockUsed: packageInfo.blockUsed,
+        boardInfo: packageInfo.boardInfo,
+        history: packageInfo.history
       }
     )
     , () => console.log(`after setState boardInfo: ${boardObjectToSetState.state.boardInfo}`));

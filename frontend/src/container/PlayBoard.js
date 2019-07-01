@@ -65,6 +65,7 @@ class WebLokus extends React.Component {
                 this.square[13][13] = ORANGE_EDGE;
                 this.history = [];
                 this.used = new Array(21 * 2);
+                this.used.fill(false)
                 this.board = new Board();
                 this.drag = this.drag.bind(this);
                 this.click = this.click.bind(this);
@@ -206,9 +207,9 @@ class WebLokus extends React.Component {
                         this.setState((prevState) => ({
                                 ownScore: currentScore,
                                 opponentScore: opponentCurrentScore,
-                                boardInfo: this.square,
-                                blockUsed: this.used,
-                                history: this.history
+                                boardInfo: this.state.square,
+                                blockUsed: this.state.used,
+                                history: this.state.history
                         }), () => {
                                 var { roomToSendMsg } = require('./PlayGround');
                                 console.log(`send boardInfo : ${this.state.boardInfo} ${this.state.blockUsed}`);
