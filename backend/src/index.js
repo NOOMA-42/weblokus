@@ -13,14 +13,44 @@ const app = express();
 app.use(cors());
 const server = http.createServer(app);
 const gameServer = new Server({ server });
-const playboradRoutes = express.Router()
+
+const Rank = require("../models/Rank")
 const mongoose = require("mongoose")
+const playboradRoutes = express.Router()
+
+
 mongoose.connect('mongodb://127.0.0.1:27017/ranking', { useNewUrlParser: true });
 const connection = mongoose.connection;
 connection.once('open', function() {
     console.log("MongoDB database connection established successfully");
 })
-
+app.use("/ranks",playboradRoutes)
+/*
+app.post('/playborad', (req, res) => {
+    console.log('Inside the homepage callback')
+    res.send(`Helle\n`)
+    console.log(req.body)
+    let rank = new Rank(req.body);
+    rank.save()
+        .then(post=>{
+            res.send("in the function")
+            res.status(200).json({'rank':'rank add successfully'})
+            })
+        .catch(err=>
+            res.status(400).send("rank error"))
+  })*/
+  /*
+app.post('/playborad',(req,res)=>{
+    console.log("posttt")
+    res.send("post")
+})*/
+/*
+playboradRoutes.get('/',function(req,res,next){
+    res.send("respond with rescorce")
+})*/
+playboradRoutes.route('/playborad').get(function(req,res){
+    res.send("route get")
+})
 
 playboradRoutes.route('/playborad').post(function(req, res) {
     let rank = new Rank(req.body);
@@ -32,7 +62,6 @@ playboradRoutes.route('/playborad').post(function(req, res) {
             res.status(400).send('adding new rank failed');
         });
 });
-
 // register your room handlers
 /*
 There could be many rooms in a single registrant
