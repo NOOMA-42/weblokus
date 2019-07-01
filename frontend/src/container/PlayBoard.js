@@ -89,7 +89,7 @@ class WebLokus extends React.Component {
                 return true;
         }
         inBounds = (x, y) => { return (x >= 0 && y >= 0 && x < 14 && y < 14); }
-        turn = () => { return this.history.length % 2 ; }
+        turn = () => { return this.state.history.length % 2 ; }
         colorAt = (x, y) => {
                 if (this.state.boardInfo[y][x] & VIOLET_BLOCK) {
                         return 'violet';
@@ -100,7 +100,6 @@ class WebLokus extends React.Component {
                 return null;
         }
         isValidMove = (move) => {
-                console.log(this.state.blockUsed) ;
                 if (move.isPass()) {
                         return true;
                 }
@@ -424,7 +423,6 @@ class WebLokus extends React.Component {
                 */
                 var { roomToSendMsg, ID } = require('./PlayGround');
                 playerID = ID;
-                console.log(ID)
                 if (initialize) {
 
                         listenMessageFromServer(roomToSendMsg, this);
@@ -437,9 +435,9 @@ class WebLokus extends React.Component {
                 you send what object to server you'll get the same one (by listenMessageFromServer setState)
                      *
                 */
+                console.log("here")
                 if( this.turn() !== playerID ) {
-                        blocking = true ;
-                        
+                        blocking = true;
                 } else {
                         blocking = false;
                 }
