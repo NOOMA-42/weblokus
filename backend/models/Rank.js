@@ -5,7 +5,7 @@ let Rank = new Schema({
     rank_user: {
         type: String
     },
-    post_score:{
+    rank_score:{
         type: Number
     }
 });
