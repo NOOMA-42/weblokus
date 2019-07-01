@@ -13,14 +13,26 @@ const app = express();
 app.use(cors());
 const server = http.createServer(app);
 const gameServer = new Server({ server });
+
 const mongoose = require("mongoose")
-
-
 mongoose.connect('mongodb://127.0.0.1:27017/ranking', { useNewUrlParser: true });
 const connection = mongoose.connection;
 connection.once('open', function() {
     console.log("MongoDB database connection established successfully");
 })
+
+
+playboradRoutes.route('/playborad').post(function(req, res) {
+    let rank = new Rank(req.body);
+    rank.save()
+        .then(post => {
+            res.status(200).json({'rank': 'rank added successfully'});
+        })
+        .catch(err => {
+            res.status(400).send('adding new rank failed');
+        });
+});
+
 // register your room handlers
 /*
 There could be many rooms in a single registrant
