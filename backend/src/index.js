@@ -13,7 +13,14 @@ const app = express();
 app.use(cors());
 const server = http.createServer(app);
 const gameServer = new Server({ server });
+const mongoose = require("mongoose")
 
+
+mongoose.connect('mongodb://127.0.0.1:27017/ranking', { useNewUrlParser: true });
+const connection = mongoose.connection;
+connection.once('open', function() {
+    console.log("MongoDB database connection established successfully");
+})
 // register your room handlers
 /*
 There could be many rooms in a single registrant
