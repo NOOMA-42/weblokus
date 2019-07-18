@@ -1,23 +1,28 @@
 [107-2] Web Programming Final
 (Group 15) 題目名稱：Weblokus -- weblokus is a double players, with ranking and several features, extended version of board game - blokus
+
 Repo Link: https://github.com/NOOMA-42/weblokus
 Weblokus
 Built on Colyseus server, extended from a board game, Weblokus is a double players game. Players has to start from their corner and take up the squares as much as possible. 
-DEMO
-Video:  https://www.youtube.com/watch?v=CIULJDkUqIQ 
+
+DEMO Video:  https://www.youtube.com/watch?v=CIULJDkUqIQ 
 INSTALLATION:
 Install packages 
 1.First clone the repo: 
 git clone https://github.com/NOOMA-42/weblokus
+
 2. Then build it:
 cd weblokus
 npm run allinstall
+
 3. Install MongoDB and create a db called ranking including a collection called ranks
+
 RUN:
 Run both backend and frontend via concurrently:
 npm run dev
 Now use `localhost:8080` to access Weblokus. 
 (localhost:2567/colyseus to access backend monitor)
+
 PACKAGES USED
 -Frontend
 @colyseus/schema"
@@ -50,16 +55,19 @@ PACKAGES USED
 "express-jwt"
 "express-session"
 "mongoose"
+
 CODE:
 https://github.com/endel/colyseus-react-example
 https://github.com/irori/blokus
 https://github.com/colyseus/colyseus-examples/tree/master/static
 特別感謝: colyseus official forum
 TEAMMATE CONTRIBUTION
+
 * Backend:
 游祖鈞: colyseus api使用，後端架構，前後連接
 * Frontend :
 葉彥東: 前端邏輯設計，前後連接
+
 心得
 葉彥東:
 這學期是我第一次接觸所有跟網站有關的東東，js的各種神奇黑魔法，一大堆套件，搞得我一團亂，不過經過這次期末的體驗，讓我對於前段有更多的了解，也了解到很多以前說的開發習慣真的都超重要........ 修完這門課會發現真的只是網站的開始而已
