@@ -2,10 +2,12 @@
 (Group 15) 題目名稱：Weblokus -- weblokus is a double players, with ranking and several features, extended version of board game - blokus
 
 Repo Link: https://github.com/NOOMA-42/weblokus
+
 Weblokus
 Built on Colyseus server, extended from a board game, Weblokus is a double players game. Players has to start from their corner and take up the squares as much as possible. 
 
 DEMO Video:  https://www.youtube.com/watch?v=CIULJDkUqIQ 
+
 INSTALLATION:
 Install packages 
 1.First clone the repo: 
