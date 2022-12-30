@@ -38,7 +38,7 @@
     "@colyseus/monitor": "^0.10.0",
     "@colyseus/social": "^0.10.2",
     "babel-loader": "^8.0.6",
-    "colyseus": "^0.10.7",
+    "colyseus": "^0.14.24",
     "core-util-is": "^1.0.2",
     "cors": "^2.8.5",
     "express": "^4.16.4",
